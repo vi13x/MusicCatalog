@@ -24,3 +24,7 @@
 - Spotify
 - Яндекс Музыка
 - Apple Music
+
+- ---
+
+[Sonar](https://sonarcloud.io/projects?security=1&security_review=1)
