@@ -1,55 +1,35 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# ===== BUILD =====
-
-/target/
-/out/
-/build/
-
-
-# ===== JAR / EXE / BIN =====
-
-*.exe
-*.jar
-*.war
-*.ear
-*.class
 *.log
-
-# ===== DATABASE FILES =====
-
-*.db
-*.mv.db
-*.trace.db
-*.h2.db
-*.sqlite
-*.sqlite3
-*.sql
-
-# ===== SPRING CONFIG (локальные профили) =====
-application-local.properties
-application-dev.properties
-application-prod.properties
-application-test.properties
-
-
-# ===== ENV / SECRETS =====
-
-.env
-.env.*
-*.env
-
-
-# ===== INTELLIJ IDEA =====
+logs/
 
 .idea/
+*.iws
 *.iml
+*.ipr
+out/
 
+.vscode/
 
-# ===== MAVEN WRAPPER BIN =====
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-.mvn/wrapper/maven-wrapper.jar
-
-# ===== OS =====
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
 .DS_Store
 Thumbs.db
