@@ -1,25 +1,98 @@
-HELP.md
+### ===== Maven / Gradle build outputs =====
 target/
-.mvn/wrapper/maven-wrapper.jar
+build/
+out/
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-.idea
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### ===== Logs / temp =====
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+
+### ===== OS / IDE =====
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
+
+# Eclipse / STS
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+
+# VS Code
 .vscode/
+
+# Windows / macOS / Linux
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+### ===== Annotation processors =====
+.apt_generated/
+.factorypath
+
+### ===== Java =====
+*.class
+hs_err_pid*
+replay_pid*
+
+### ===== Environment / secrets =====
+.env
+.env.*
+!.env.example
+
+# Keys / certs
+*.jks
+*.p12
+*.pfx
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+
+src/main/resources/application-*.yml
+src/main/resources/application-*.yaml
+!src/main/resources/application.yml
+!src/main/resources/application.yaml
+!src/main/resources/application-test.yml
+!src/main/resources/application-test.yaml
+
+src/main/resources/*secret*.yml
+src/main/resources/*secret*.yaml
+src/main/resources/*password*.yml
+src/main/resources/*password*.yaml
+
+docker-compose.override.yml
+docker-compose.override.yaml
+compose.override.yml
+compose.override.yaml
+
+/surefire-reports/
+/failsafe-reports/
+*.hprof
+jacoco.exec
+/.idea/sonarlint/
+/.sonarlint/
