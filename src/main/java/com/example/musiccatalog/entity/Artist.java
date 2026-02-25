@@ -10,8 +10,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -22,23 +20,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "albums")
-public class Album {
+@Table(name = "artists")
+public class Artist {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;
+    @Column(nullable = false, unique = true)
+    private String name;
 
-    @Column(name = "release_year")
-    private Integer releaseYear;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artist_id", nullable = false)
-    private Artist artist;
-
-    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Track> tracks = new ArrayList<>();
+    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Album> albums = new ArrayList<>();
 }
