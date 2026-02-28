@@ -2,6 +2,7 @@ package com.example.musiccatalog.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class PlaylistService {
         if (dto.tracks() != null && !dto.tracks().isEmpty()) {
             Set<Long> trackIds = dto.tracks().stream()
                     .map(t -> t.id())
-                    .filter(id -> id != null)
+                    .filter(Objects::nonNull)
                     .collect(java.util.stream.Collectors.toSet());
             if (!trackIds.isEmpty()) {
                 Set<Track> tracks = new HashSet<>(trackRepository.findAllById(trackIds));
@@ -76,7 +77,7 @@ public class PlaylistService {
         if (dto.tracks() != null) {
             Set<Long> trackIds = dto.tracks().stream()
                     .map(t -> t.id())
-                    .filter(id -> id != null)
+                    .filter(Objects::nonNull)
                     .collect(java.util.stream.Collectors.toSet());
             Set<Track> tracks = trackIds.isEmpty()
                     ? new HashSet<>()

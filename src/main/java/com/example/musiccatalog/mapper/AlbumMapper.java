@@ -9,7 +9,6 @@ import com.example.musiccatalog.dto.ArtistDTO;
 import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.entity.Album;
 import com.example.musiccatalog.entity.Artist;
-import com.example.musiccatalog.entity.Track;
 
 import lombok.AllArgsConstructor;
 

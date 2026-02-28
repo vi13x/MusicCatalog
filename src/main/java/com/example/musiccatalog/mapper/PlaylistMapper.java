@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import com.example.musiccatalog.dto.PlaylistDTO;
 import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.entity.Playlist;
-import com.example.musiccatalog.entity.Track;
 
 import lombok.AllArgsConstructor;
 
