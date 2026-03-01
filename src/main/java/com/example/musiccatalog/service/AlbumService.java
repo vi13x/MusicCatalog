@@ -33,7 +33,6 @@ public class AlbumService {
     }
 
     public List<AlbumDTO> getAll() {
-        // Здесь может быть N+1 если потом трогать tracks/genres — для фикса используем findWithAllById для конкретного.
         return albumRepository.findAll().stream().map(AlbumMapper::toDto).toList();
     }
 

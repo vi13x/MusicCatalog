@@ -24,7 +24,6 @@ public class Track {
     @Column(nullable = false)
     private Integer durationSec;
 
-    /** ManyToOne: LAZY — альбом не подгружается до getAlbum(); снижает объём выборки при списках треков. */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;

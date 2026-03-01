@@ -27,8 +27,6 @@ public class DemoService {
         this.trackRepository = trackRepository;
     }
 
-
-    /** Демонстрация N+1: для каждого id отдельный findById, затем при getTracks() — отдельный запрос на каждый альбом. */
     public int nPlusOneDemo(List<Long> albumIds) {
         int total = 0;
         for (Long id : albumIds) {
@@ -39,7 +37,6 @@ public class DemoService {
         return total;
     }
 
-    /** Решение N+1 через @EntityGraph: один запрос загружает альбомы с artist, tracks, genres — без дополнительных запросов при getTracks(). */
     public int nPlusOneFixed(List<Long> albumIds) {
         List<Album> albums = albumRepository.findAllByIdIn(albumIds);
         int total = 0;
@@ -49,11 +46,6 @@ public class DemoService {
         return total;
     }
 
-
-    /**
-     * Сохранение связанных сущностей без @Transactional.
-     * При ошибке на saveAndFlush(bad) часть данных уже закоммичена (artist, album, первый трек) — частичное сохранение.
-     */
     public void createAlbumWithTracks_NoTx(String artistName) {
         Artist artist = artistRepository.save(new Artist(artistName));
         Album album = albumRepository.save(new Album("NoTx Album", 2024, artist));
@@ -62,14 +54,11 @@ public class DemoService {
         ok.setAlbum(album);
         trackRepository.save(ok);
 
-        Track bad = new Track(null, 200); // title=null -> нарушение NOT NULL
+        Track bad = new Track(null, 200);
         bad.setAlbum(album);
         trackRepository.saveAndFlush(bad);
     }
 
-    /**
-     * То же с @Transactional: при исключении на saveAndFlush(bad) вся транзакция откатывается — в БД ничего не остаётся.
-     */
     @Transactional
     public void createAlbumWithTracks_Tx(String artistName) {
         Artist artist = artistRepository.save(new Artist(artistName));
