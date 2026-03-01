@@ -16,6 +16,13 @@ import java.util.List;
 @Service
 public class DemoService {
 
+    private static final int DEMO_ALBUM_YEAR = 2024;
+    private static final int DEMO_TRACK_DURATION_OK = 180;
+    private static final int DEMO_TRACK_DURATION_BAD = 200;
+    private static final String DEMO_TRACK_TITLE_OK = "Good track";
+    private static final String DEMO_ALBUM_NO_TX = "NoTx Album";
+    private static final String DEMO_ALBUM_TX = "Tx Album";
+
     private final AlbumRepository albumRepository;
     private final ArtistRepository artistRepository;
     private final TrackRepository trackRepository;
@@ -48,23 +55,23 @@ public class DemoService {
     }
 
     public void createAlbumWithTracksNoTx(String artistName) {
-        createAlbumWithTracksInternal(artistName, "NoTx Album");
+        createAlbumWithTracksInternal(artistName, DEMO_ALBUM_NO_TX);
     }
 
     @Transactional
     public void createAlbumWithTracksTx(String artistName) {
-        createAlbumWithTracksInternal(artistName, "Tx Album");
+        createAlbumWithTracksInternal(artistName, DEMO_ALBUM_TX);
     }
 
     private void createAlbumWithTracksInternal(String artistName, String albumTitle) {
         Artist artist = artistRepository.save(new Artist(artistName));
-        Album album = albumRepository.save(new Album(albumTitle, 2024, artist));
+        Album album = albumRepository.save(new Album(albumTitle, DEMO_ALBUM_YEAR, artist));
 
-        Track ok = new Track("Good track", 180);
+        Track ok = new Track(DEMO_TRACK_TITLE_OK, DEMO_TRACK_DURATION_OK);
         ok.setAlbum(album);
         trackRepository.save(ok);
 
-        Track bad = new Track(null, 200);
+        Track bad = new Track(null, DEMO_TRACK_DURATION_BAD);
         bad.setAlbum(album);
         trackRepository.saveAndFlush(bad);
     }

@@ -10,9 +10,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final String VALIDATION_ERROR = "Validation error";
+    private static final String FIELD_SEPARATOR = ": ";
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(NotFoundException ex, HttpServletRequest req) {
@@ -28,8 +32,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
         String msg = ex.getBindingResult().getFieldErrors().stream()
                 .findFirst()
-                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
-                .orElse("Validation error");
+                .map(fe -> fe.getField() + FIELD_SEPARATOR + fe.getDefaultMessage())
+                .orElse(VALIDATION_ERROR);
         return build(HttpStatus.BAD_REQUEST, msg, req.getRequestURI());
     }
 
@@ -39,11 +43,12 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ApiError> build(HttpStatus status, String message, String path) {
+        String safeMessage = Objects.requireNonNullElse(message, "");
         ApiError body = new ApiError(
                 Instant.now(),
                 status.value(),
                 status.getReasonPhrase(),
-                message,
+                safeMessage,
                 path
         );
         return ResponseEntity.status(status).body(body);
