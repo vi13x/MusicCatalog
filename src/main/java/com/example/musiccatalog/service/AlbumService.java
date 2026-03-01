@@ -14,7 +14,6 @@ import com.example.musiccatalog.repository.ArtistRepository;
 import com.example.musiccatalog.repository.GenreRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,19 +47,8 @@ public class AlbumService {
                 .orElseThrow(() -> new NotFoundException(ErrorMessages.ARTIST_NOT_FOUND + dto.artistId()));
 
         Album album = new Album(dto.title(), dto.year(), artist);
-
-        Set<Long> genreIds = dto.genreIds() == null ? Set.of() : dto.genreIds();
-        for (Long gid : genreIds) {
-            Genre g = genreRepository.findById(gid)
-                    .orElseThrow(() -> new NotFoundException(ErrorMessages.GENRE_NOT_FOUND + gid));
-            album.addGenre(g);
-        }
-
-        List<TrackDTO> tracks = dto.tracks() == null ? List.of() : dto.tracks();
-        for (TrackDTO t : tracks) {
-            Track track = new Track(t.title(), t.durationSec());
-            album.addTrack(track);
-        }
+        applyGenres(album, dto.genreIds());
+        applyTracks(album, dto.tracks());
 
         return AlbumMapper.toDto(albumRepository.save(album));
     }
@@ -71,24 +59,29 @@ public class AlbumService {
 
         album.setTitle(dto.title());
         album.setYear(dto.year());
-
-
         album.clearGenres();
-        Set<Long> genreIds = dto.genreIds() == null ? new HashSet<>() : new HashSet<>(dto.genreIds());
-        for (Long gid : genreIds) {
+        applyGenres(album, dto.genreIds());
+        album.getTracks().clear();
+        applyTracks(album, dto.tracks());
+
+        return AlbumMapper.toDto(albumRepository.save(album));
+    }
+
+    private void applyGenres(Album album, Set<Long> genreIds) {
+        Set<Long> ids = genreIds == null ? Set.of() : genreIds;
+        for (Long gid : ids) {
             Genre g = genreRepository.findById(gid)
                     .orElseThrow(() -> new NotFoundException(ErrorMessages.GENRE_NOT_FOUND + gid));
             album.addGenre(g);
         }
+    }
 
-        album.getTracks().clear();
-        List<TrackDTO> tracks = dto.tracks() == null ? List.of() : dto.tracks();
-        for (TrackDTO t : tracks) {
+    private void applyTracks(Album album, List<TrackDTO> trackDtos) {
+        List<TrackDTO> list = trackDtos == null ? List.of() : trackDtos;
+        for (TrackDTO t : list) {
             Track track = new Track(t.title(), t.durationSec());
             album.addTrack(track);
         }
-
-        return AlbumMapper.toDto(albumRepository.save(album));
     }
 
     public void delete(Long id) {

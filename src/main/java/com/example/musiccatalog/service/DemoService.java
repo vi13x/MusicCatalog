@@ -48,22 +48,17 @@ public class DemoService {
     }
 
     public void createAlbumWithTracksNoTx(String artistName) {
-        Artist artist = artistRepository.save(new Artist(artistName));
-        Album album = albumRepository.save(new Album("NoTx Album", 2024, artist));
-
-        Track ok = new Track("Good track", 180);
-        ok.setAlbum(album);
-        trackRepository.save(ok);
-
-        Track bad = new Track(null, 200);
-        bad.setAlbum(album);
-        trackRepository.saveAndFlush(bad);
+        createAlbumWithTracksInternal(artistName, "NoTx Album");
     }
 
     @Transactional
     public void createAlbumWithTracksTx(String artistName) {
+        createAlbumWithTracksInternal(artistName, "Tx Album");
+    }
+
+    private void createAlbumWithTracksInternal(String artistName, String albumTitle) {
         Artist artist = artistRepository.save(new Artist(artistName));
-        Album album = albumRepository.save(new Album("Tx Album", 2024, artist));
+        Album album = albumRepository.save(new Album(albumTitle, 2024, artist));
 
         Track ok = new Track("Good track", 180);
         ok.setAlbum(album);
