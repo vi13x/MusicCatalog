@@ -1,6 +1,0 @@
-  spring:
-    datasource:
-  url: jdbc:postgresql://localhost:5432/music_catalog?currentSchema=public
-  username: postgres
-  password:
-  driver-class-name: org.postgresql.Driver
