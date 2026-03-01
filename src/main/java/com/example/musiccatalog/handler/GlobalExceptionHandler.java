@@ -33,8 +33,8 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, msg, req.getRequestURI());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleAny(Exception ex, HttpServletRequest req) {
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiError> handleAny(RuntimeException ex, HttpServletRequest req) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), req.getRequestURI());
     }
 

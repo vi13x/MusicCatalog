@@ -3,6 +3,7 @@ package com.example.musiccatalog.service;
 import com.example.musiccatalog.entity.Album;
 import com.example.musiccatalog.entity.Artist;
 import com.example.musiccatalog.entity.Track;
+import com.example.musiccatalog.exception.ErrorMessages;
 import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.repository.AlbumRepository;
 import com.example.musiccatalog.repository.ArtistRepository;
@@ -31,7 +32,7 @@ public class DemoService {
         int total = 0;
         for (Long id : albumIds) {
             Album a = albumRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundException("Album not found: " + id));
+                    .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
             total += a.getTracks().size();
         }
         return total;
@@ -46,7 +47,7 @@ public class DemoService {
         return total;
     }
 
-    public void createAlbumWithTracks_NoTx(String artistName) {
+    public void createAlbumWithTracksNoTx(String artistName) {
         Artist artist = artistRepository.save(new Artist(artistName));
         Album album = albumRepository.save(new Album("NoTx Album", 2024, artist));
 
@@ -60,7 +61,7 @@ public class DemoService {
     }
 
     @Transactional
-    public void createAlbumWithTracks_Tx(String artistName) {
+    public void createAlbumWithTracksTx(String artistName) {
         Artist artist = artistRepository.save(new Artist(artistName));
         Album album = albumRepository.save(new Album("Tx Album", 2024, artist));
 

@@ -2,6 +2,7 @@ package com.example.musiccatalog.service;
 
 import com.example.musiccatalog.dto.ArtistDTO;
 import com.example.musiccatalog.entity.Artist;
+import com.example.musiccatalog.exception.ErrorMessages;
 import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.ArtistMapper;
 import com.example.musiccatalog.repository.ArtistRepository;
@@ -43,6 +44,6 @@ public class ArtistService {
 
     public Artist getEntity(Long id) {
         return artistRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Artist not found: " + id));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ARTIST_NOT_FOUND + id));
     }
 }

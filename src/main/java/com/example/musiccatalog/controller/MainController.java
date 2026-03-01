@@ -35,13 +35,13 @@ public class MainController {
 
     @GetMapping("/no-tx")
     public ResponseEntity<String> noTx(@RequestParam(defaultValue = "NoTxArtist") String artist) {
-        demoService.createAlbumWithTracks_NoTx(artist);
+        demoService.createAlbumWithTracksNoTx(artist);
         return ResponseEntity.ok("Should not reach here (expected error).");
     }
 
     @GetMapping("/tx")
     public ResponseEntity<String> tx(@RequestParam(defaultValue = "TxArtist") String artist) {
-        demoService.createAlbumWithTracks_Tx(artist);
+        demoService.createAlbumWithTracksTx(artist);
         return ResponseEntity.ok("Should not reach here (expected error).");
     }
 }

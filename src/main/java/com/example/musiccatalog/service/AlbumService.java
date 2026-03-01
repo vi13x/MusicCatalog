@@ -6,6 +6,7 @@ import com.example.musiccatalog.entity.Album;
 import com.example.musiccatalog.entity.Artist;
 import com.example.musiccatalog.entity.Genre;
 import com.example.musiccatalog.entity.Track;
+import com.example.musiccatalog.exception.ErrorMessages;
 import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.AlbumMapper;
 import com.example.musiccatalog.repository.AlbumRepository;
@@ -38,20 +39,20 @@ public class AlbumService {
 
     public AlbumDTO getById(Long id) {
         Album a = albumRepository.findWithAllById(id)
-                .orElseThrow(() -> new NotFoundException("Album not found: " + id));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
         return AlbumMapper.toDto(a);
     }
 
     public AlbumDTO create(AlbumDTO dto) {
         Artist artist = artistRepository.findById(dto.artistId())
-                .orElseThrow(() -> new NotFoundException("Artist not found: " + dto.artistId()));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ARTIST_NOT_FOUND + dto.artistId()));
 
         Album album = new Album(dto.title(), dto.year(), artist);
 
         Set<Long> genreIds = dto.genreIds() == null ? Set.of() : dto.genreIds();
         for (Long gid : genreIds) {
             Genre g = genreRepository.findById(gid)
-                    .orElseThrow(() -> new NotFoundException("Genre not found: " + gid));
+                    .orElseThrow(() -> new NotFoundException(ErrorMessages.GENRE_NOT_FOUND + gid));
             album.addGenre(g);
         }
 
@@ -66,7 +67,7 @@ public class AlbumService {
 
     public AlbumDTO update(Long id, AlbumDTO dto) {
         Album album = albumRepository.findWithAllById(id)
-                .orElseThrow(() -> new NotFoundException("Album not found: " + id));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
 
         album.setTitle(dto.title());
         album.setYear(dto.year());
@@ -76,7 +77,7 @@ public class AlbumService {
         Set<Long> genreIds = dto.genreIds() == null ? new HashSet<>() : new HashSet<>(dto.genreIds());
         for (Long gid : genreIds) {
             Genre g = genreRepository.findById(gid)
-                    .orElseThrow(() -> new NotFoundException("Genre not found: " + gid));
+                    .orElseThrow(() -> new NotFoundException(ErrorMessages.GENRE_NOT_FOUND + gid));
             album.addGenre(g);
         }
 
@@ -92,7 +93,7 @@ public class AlbumService {
 
     public void delete(Long id) {
         Album album = albumRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Album not found: " + id));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
         albumRepository.delete(album);
     }
 }

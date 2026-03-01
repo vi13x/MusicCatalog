@@ -2,6 +2,7 @@ package com.example.musiccatalog.service;
 
 import com.example.musiccatalog.dto.GenreDTO;
 import com.example.musiccatalog.entity.Genre;
+import com.example.musiccatalog.exception.ErrorMessages;
 import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.GenreMapper;
 import com.example.musiccatalog.repository.GenreRepository;
@@ -43,6 +44,6 @@ public class GenreService {
 
     public Genre getEntity(Long id) {
         return genreRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Genre not found: " + id));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.GENRE_NOT_FOUND + id));
     }
 }

@@ -3,6 +3,7 @@ package com.example.musiccatalog.service;
 import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.entity.Album;
 import com.example.musiccatalog.entity.Track;
+import com.example.musiccatalog.exception.ErrorMessages;
 import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.TrackMapper;
 import com.example.musiccatalog.repository.AlbumRepository;
@@ -32,7 +33,7 @@ public class TrackService {
 
     public TrackDTO create(TrackDTO dto) {
         Album album = albumRepository.findById(dto.albumId())
-                .orElseThrow(() -> new NotFoundException("Album not found: " + dto.albumId()));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + dto.albumId()));
 
         Track t = new Track(dto.title(), dto.durationSec());
         t.setAlbum(album);
@@ -52,6 +53,6 @@ public class TrackService {
 
     private Track getEntity(Long id) {
         return trackRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Track not found: " + id));
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.TRACK_NOT_FOUND + id));
     }
 }
