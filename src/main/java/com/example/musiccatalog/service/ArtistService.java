@@ -1,72 +1,48 @@
 package com.example.musiccatalog.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.example.musiccatalog.dto.ArtistDTO;
 import com.example.musiccatalog.entity.Artist;
-import com.example.musiccatalog.entity.constant.EntityType;
-import com.example.musiccatalog.exception.EntityNotFoundException;
+import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.ArtistMapper;
 import com.example.musiccatalog.repository.ArtistRepository;
+import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
 
-@AllArgsConstructor
 @Service
 public class ArtistService {
 
     private final ArtistRepository artistRepository;
-    private final ArtistMapper artistMapper;
+
+    public ArtistService(ArtistRepository artistRepository) {
+        this.artistRepository = artistRepository;
+    }
+
+    public List<ArtistDTO> getAll() {
+        return artistRepository.findAll().stream().map(ArtistMapper::toDto).toList();
+    }
+
+    public ArtistDTO getById(Long id) {
+        return ArtistMapper.toDto(getEntity(id));
+    }
 
     public ArtistDTO create(ArtistDTO dto) {
-        if (dto.name() == null || dto.name().isBlank()) {
-            throw new IllegalArgumentException("Artist name is blank");
-        }
-        String trimmed = dto.name().trim();
-        if (artistRepository.existsByName(trimmed)) {
-            throw new IllegalArgumentException("Artist already exists: " + trimmed);
-        }
-        Artist entity = artistMapper.toEntity(dto);
-        entity.setName(trimmed);
-        entity = artistRepository.save(entity);
-        return artistMapper.toDTO(entity);
+        Artist a = new Artist(dto.name());
+        return ArtistMapper.toDto(artistRepository.save(a));
     }
 
-    public ArtistDTO findById(long id) {
-        Artist entity = artistRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.ARTIST, "id", id));
-        return artistMapper.toDTO(entity);
+    public ArtistDTO update(Long id, ArtistDTO dto) {
+        Artist a = getEntity(id);
+        a.setName(dto.name());
+        return ArtistMapper.toDto(artistRepository.save(a));
     }
 
-    public ArtistDTO findByName(String name) {
-        Artist entity = artistRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.ARTIST, "name", name));
-        return artistMapper.toDTO(entity);
+    public void delete(Long id) {
+        artistRepository.delete(getEntity(id));
     }
 
-    public List<ArtistDTO> findAll() {
-        return artistRepository.findAll().stream()
-                .map(artistMapper::toDTO)
-                .toList();
-    }
-
-    public ArtistDTO update(ArtistDTO dto) {
-        if (dto.id() == null) {
-            throw new IllegalArgumentException("Artist id is required for update");
-        }
-        if (dto.name() == null || dto.name().isBlank()) {
-            throw new IllegalArgumentException("Artist name is blank");
-        }
-        Artist entity = artistRepository.findById(dto.id())
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.ARTIST, "id", dto.id()));
-        entity.setName(dto.name().trim());
-        entity = artistRepository.save(entity);
-        return artistMapper.toDTO(entity);
-    }
-
-    public void removeById(long id) {
-        artistRepository.deleteById(id);
+    public Artist getEntity(Long id) {
+        return artistRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Artist not found: " + id));
     }
 }

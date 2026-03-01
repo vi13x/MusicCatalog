@@ -28,10 +28,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // В БД name NOT NULL
+
     @Column(name = "name", nullable = false)
     private String name;
 
+    /** OneToMany: LAZY; PERSIST,MERGE — создание/обновление пользователя может каскадироваться на плейлисты; orphanRemoval=false — удаление пользователя не удаляет плейлисты (user_id SET NULL в БД). */
     @OneToMany(
             mappedBy = "user",
             fetch = FetchType.LAZY,

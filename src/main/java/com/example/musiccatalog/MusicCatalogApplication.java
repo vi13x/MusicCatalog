@@ -10,4 +10,3 @@ public class MusicCatalogApplication {
         SpringApplication.run(MusicCatalogApplication.class, args);
     }
 }
-

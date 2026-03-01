@@ -1,45 +1,29 @@
 package com.example.musiccatalog.mapper;
 
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import com.example.musiccatalog.dto.AlbumDTO;
-import com.example.musiccatalog.dto.ArtistDTO;
 import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.entity.Album;
-import com.example.musiccatalog.entity.Artist;
 
-import lombok.AllArgsConstructor;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-@Component
-@AllArgsConstructor
-public class AlbumMapper {
+public final class AlbumMapper {
 
-    private final TrackMapper trackMapper;
-
-    public Album toEntity(AlbumDTO dto) {
-        Album album = new Album();
-        album.setTitle(dto.title());
-        album.setReleaseYear(dto.releaseYear());
-        return album;
+    private AlbumMapper() {
     }
 
-    public AlbumDTO toDTO(Album entity) {
-        Artist artist = entity.getArtist();
-        ArtistDTO artistDto = artist != null
-                ? new ArtistDTO(artist.getId(), artist.getName())
-                : null;
-
-        List<TrackDTO> tracksDto = entity.getTracks() != null
-                ? entity.getTracks().stream().map(trackMapper::toDTO).toList()
-                : List.of();
+    public static AlbumDTO toDto(Album a) {
+        Set<Long> genreIds = a.getGenres().stream()
+                .map(g -> g.getId())
+                .collect(Collectors.toSet());
 
         return new AlbumDTO(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getReleaseYear(),
-                artistDto,
-                tracksDto);
+                a.getId(),
+                a.getTitle(),
+                a.getYear(),
+                a.getArtist().getId(),
+                genreIds,
+                a.getTracks().stream().map(TrackMapper::toDto).toList()
+        );
     }
 }

@@ -2,5 +2,5 @@
     datasource:
   url: jdbc:postgresql://localhost:5432/music_catalog?currentSchema=public
   username: postgres
-  password: ${DB_PASSWORD}
+  password:
   driver-class-name: org.postgresql.Driver

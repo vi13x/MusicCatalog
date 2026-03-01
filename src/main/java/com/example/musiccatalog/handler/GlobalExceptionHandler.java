@@ -1,30 +1,51 @@
 package com.example.musiccatalog.handler;
 
+import com.example.musiccatalog.exception.BadRequestException;
+import com.example.musiccatalog.exception.NotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.example.musiccatalog.exception.EntityNotFoundException;
+import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleEntityNotFound(EntityNotFoundException exception) {
-        return exception.getMessage();
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(NotFoundException ex, HttpServletRequest req) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), req.getRequestURI());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleIllegalArgument(IllegalArgumentException exception) {
-        return exception.getMessage();
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex, HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), req.getRequestURI());
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleRuntime(RuntimeException exception) {
-        return exception.getMessage();
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
+        String msg = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
+                .orElse("Validation error");
+        return build(HttpStatus.BAD_REQUEST, msg, req.getRequestURI());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleAny(Exception ex, HttpServletRequest req) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), req.getRequestURI());
+    }
+
+    private ResponseEntity<ApiError> build(HttpStatus status, String message, String path) {
+        ApiError body = new ApiError(
+                Instant.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                path
+        );
+        return ResponseEntity.status(status).body(body);
     }
 }

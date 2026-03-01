@@ -29,10 +29,10 @@ CREATE TABLE IF NOT EXISTS genres (
 -- ALBUMS
 -- =========================
 CREATE TABLE IF NOT EXISTS albums (
-                                      id           BIGSERIAL PRIMARY KEY,
-                                      title        VARCHAR(255) NOT NULL,
-    release_year INTEGER,
-    artist_id    BIGINT NOT NULL,
+                                      id        BIGSERIAL PRIMARY KEY,
+                                      title     VARCHAR(255) NOT NULL,
+    year       INTEGER,
+    artist_id  BIGINT NOT NULL,
     CONSTRAINT fk_albums_artist
     FOREIGN KEY (artist_id)
     REFERENCES artists(id)
@@ -58,23 +58,23 @@ CREATE TABLE IF NOT EXISTS tracks (
 CREATE INDEX IF NOT EXISTS idx_tracks_album_id ON tracks(album_id);
 
 -- =========================
--- TRACK <-> GENRE (Many-to-Many)
+-- ALBUM <-> GENRE (Many-to-Many)
 -- =========================
-CREATE TABLE IF NOT EXISTS track_genres (
-                                            track_id BIGINT NOT NULL,
+CREATE TABLE IF NOT EXISTS album_genres (
+                                            album_id BIGINT NOT NULL,
                                             genre_id BIGINT NOT NULL,
-                                            PRIMARY KEY (track_id, genre_id),
-    CONSTRAINT fk_track_genres_track
-    FOREIGN KEY (track_id)
-    REFERENCES tracks(id)
+                                            PRIMARY KEY (album_id, genre_id),
+    CONSTRAINT fk_album_genres_album
+    FOREIGN KEY (album_id)
+    REFERENCES albums(id)
     ON DELETE CASCADE,
-    CONSTRAINT fk_track_genres_genre
+    CONSTRAINT fk_album_genres_genre
     FOREIGN KEY (genre_id)
     REFERENCES genres(id)
     ON DELETE CASCADE
     );
 
-CREATE INDEX IF NOT EXISTS idx_track_genres_genre_id ON track_genres(genre_id);
+CREATE INDEX IF NOT EXISTS idx_album_genres_genre_id ON album_genres(genre_id);
 
 -- =========================
 -- PLAYLISTS + PLAYLIST_TRACKS

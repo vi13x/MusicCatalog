@@ -2,49 +2,45 @@ package com.example.musiccatalog.controller;
 
 import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.service.TrackService;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RequiredArgsConstructor
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tracks")
 public class TrackCRUD {
 
-    private final TrackService trackService;
+    private final TrackService service;
 
-    @PostMapping("/create")
-    public ResponseEntity<TrackDTO> create(@RequestBody TrackDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(trackService.create(request));
-    }
-
-    @GetMapping("/id/{id}")
-    public ResponseEntity<TrackDTO> findById(@PathVariable("id") long id) {
-        return ResponseEntity.ok(trackService.findById(id));
+    public TrackCRUD(TrackService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<TrackDTO>> findAll() {
-        return ResponseEntity.ok(trackService.findAll());
+    public List<TrackDTO> getAll() {
+        return service.getAll();
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<TrackDTO> update(@RequestBody TrackDTO request) {
-        return ResponseEntity.ok(trackService.update(request));
+    @GetMapping("/{id}")
+    public TrackDTO getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<Void> removeById(@PathVariable("id") long id) {
-        trackService.removeById(id);
+    @PostMapping
+    public ResponseEntity<TrackDTO> create(@Valid @RequestBody TrackDTO dto) {
+        return ResponseEntity.ok(service.create(dto));
+    }
+
+    @PutMapping("/{id}")
+    public TrackDTO update(@PathVariable Long id, @Valid @RequestBody TrackDTO dto) {
+        return service.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

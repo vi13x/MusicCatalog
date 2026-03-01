@@ -1,47 +1,57 @@
 package com.example.musiccatalog.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "artists")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Artist {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // В БД name NOT NULL
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false, unique = true, length = 120)
     private String name;
 
-    @OneToMany(
-            mappedBy = "artist",
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            orphanRemoval = false
-    )
-    @JsonIgnoreProperties({"artist", "tracks"})
-    private Set<Album> albums = new HashSet<>();
+
+    @OneToMany(mappedBy = "artist", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Album> albums = new ArrayList<>();
+
+    public Artist() {
+    }
+
+    public Artist(String name) {
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<Album> getAlbums() {
+        return albums;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void addAlbum(Album album) {
+        this.albums.add(album);
+        album.setArtist(this);
+    }
 }

@@ -1,22 +1,42 @@
 package com.example.musiccatalog.controller;
 
-import java.util.Map;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.musiccatalog.service.DemoService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
+@RequestMapping("/api/demo")
 public class MainController {
 
-    @GetMapping("/")
-    public Map<String, String> home() {
-        return Map.of(
-                "service", "Music Catalog API",
-                "status", "OK",
-                "albums", "/api/albums",
-                "artists", "/api/artists",
-                "tracks", "/api/tracks",
-                "genres", "/api/genres",
-                "playlists", "/api/playlists"
-        );
+    private final DemoService demoService;
+
+    public MainController(DemoService demoService) {
+        this.demoService = demoService;
+    }
+
+    @PostMapping("/nplus1")
+    public ResponseEntity<String> nPlusOne(@RequestBody List<Long> albumIds) {
+        int tracks = demoService.nPlusOneDemo(albumIds);
+        return ResponseEntity.ok("Total tracks loaded (N+1 triggered): " + tracks);
+    }
+
+    @PostMapping("/nplus1-fixed")
+    public ResponseEntity<String> nPlusOneFixed(@RequestBody List<Long> albumIds) {
+        int tracks = demoService.nPlusOneFixed(albumIds);
+        return ResponseEntity.ok("Total tracks loaded (EntityGraph, no N+1): " + tracks);
+    }
+
+    @GetMapping("/no-tx")
+    public ResponseEntity<String> noTx(@RequestParam(defaultValue = "NoTxArtist") String artist) {
+        demoService.createAlbumWithTracks_NoTx(artist);
+        return ResponseEntity.ok("Should not reach here (expected error).");
+    }
+
+    @GetMapping("/tx")
+    public ResponseEntity<String> tx(@RequestParam(defaultValue = "TxArtist") String artist) {
+        demoService.createAlbumWithTracks_Tx(artist);
+        return ResponseEntity.ok("Should not reach here (expected error).");
     }
 }

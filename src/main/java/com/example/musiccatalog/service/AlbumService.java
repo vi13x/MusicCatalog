@@ -4,113 +4,96 @@ import com.example.musiccatalog.dto.AlbumDTO;
 import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.entity.Album;
 import com.example.musiccatalog.entity.Artist;
+import com.example.musiccatalog.entity.Genre;
 import com.example.musiccatalog.entity.Track;
-import com.example.musiccatalog.entity.constant.EntityType;
-import com.example.musiccatalog.exception.EntityNotFoundException;
+import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.AlbumMapper;
-import com.example.musiccatalog.mapper.TrackMapper;
 import com.example.musiccatalog.repository.AlbumRepository;
 import com.example.musiccatalog.repository.ArtistRepository;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AllArgsConstructor;
+import com.example.musiccatalog.repository.GenreRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@AllArgsConstructor
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Service
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
     private final ArtistRepository artistRepository;
-    private final AlbumMapper albumMapper;
-    private final TrackMapper trackMapper;
+    private final GenreRepository genreRepository;
 
-    @Transactional
+    public AlbumService(AlbumRepository albumRepository,
+                        ArtistRepository artistRepository,
+                        GenreRepository genreRepository) {
+        this.albumRepository = albumRepository;
+        this.artistRepository = artistRepository;
+        this.genreRepository = genreRepository;
+    }
+
+    public List<AlbumDTO> getAll() {
+        // Здесь может быть N+1 если потом трогать tracks/genres — для фикса используем findWithAllById для конкретного.
+        return albumRepository.findAll().stream().map(AlbumMapper::toDto).toList();
+    }
+
+    public AlbumDTO getById(Long id) {
+        Album a = albumRepository.findWithAllById(id)
+                .orElseThrow(() -> new NotFoundException("Album not found: " + id));
+        return AlbumMapper.toDto(a);
+    }
+
     public AlbumDTO create(AlbumDTO dto) {
-        if (dto.title() == null || dto.title().isBlank()) {
-            throw new IllegalArgumentException("Album title is blank");
+        Artist artist = artistRepository.findById(dto.artistId())
+                .orElseThrow(() -> new NotFoundException("Artist not found: " + dto.artistId()));
+
+        Album album = new Album(dto.title(), dto.year(), artist);
+
+        Set<Long> genreIds = dto.genreIds() == null ? Set.of() : dto.genreIds();
+        for (Long gid : genreIds) {
+            Genre g = genreRepository.findById(gid)
+                    .orElseThrow(() -> new NotFoundException("Genre not found: " + gid));
+            album.addGenre(g);
         }
 
-        Long artistId = dto.artist() != null ? dto.artist().id() : null;
-        if (artistId == null) {
-            throw new IllegalArgumentException("Artist id is required");
+        List<TrackDTO> tracks = dto.tracks() == null ? List.of() : dto.tracks();
+        for (TrackDTO t : tracks) {
+            Track track = new Track(t.title(), t.durationSec());
+            album.addTrack(track);
         }
 
-        Artist artist = artistRepository.findById(artistId)
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.ARTIST, "id", artistId));
-
-        Album album = albumMapper.toEntity(dto);
-        album.setArtist(artist);
-
-        Album savedAlbum = albumRepository.save(album);
-
-        if (dto.tracks() != null && !dto.tracks().isEmpty()) {
-            List<Track> tracks = new ArrayList<>();
-            for (TrackDTO trackDto : dto.tracks()) {
-                Track track = trackMapper.toEntity(trackDto);
-                track.setAlbum(savedAlbum);
-                tracks.add(track);
-            }
-            savedAlbum.getTracks().addAll(tracks);
-            savedAlbum = albumRepository.save(savedAlbum);
-        }
-
-        return albumMapper.toDTO(savedAlbum);
+        return AlbumMapper.toDto(albumRepository.save(album));
     }
 
-    @Transactional(readOnly = true)
-    public AlbumDTO findById(long id) {
-        Album entity = albumRepository.findWithArtistAndTracksById(id)
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.ALBUM, "id", id));
-        return albumMapper.toDTO(entity);
-    }
+    public AlbumDTO update(Long id, AlbumDTO dto) {
+        Album album = albumRepository.findWithAllById(id)
+                .orElseThrow(() -> new NotFoundException("Album not found: " + id));
 
-    @Transactional(readOnly = true)
-    public List<AlbumDTO> findAll() {
-        return albumRepository.findAll()
-                .stream()
-                .map(albumMapper::toDTO)
-                .toList();
-    }
+        album.setTitle(dto.title());
+        album.setYear(dto.year());
 
-    @Transactional
-    public AlbumDTO update(AlbumDTO dto) {
-        if (dto.id() == null) {
-            throw new IllegalArgumentException("Album id is required for update");
-        }
-        if (dto.title() == null || dto.title().isBlank()) {
-            throw new IllegalArgumentException("Album title is blank");
-        }
 
-        Album album = albumRepository.findWithArtistAndTracksById(dto.id())
-                .orElseThrow(() -> new EntityNotFoundException(EntityType.ALBUM, "id", dto.id()));
-
-        album.setTitle(dto.title().trim());
-        album.setReleaseYear(dto.releaseYear());
-
-        if (dto.artist() != null && dto.artist().id() != null) {
-            Artist artist = artistRepository.findById(dto.artist().id())
-                    .orElseThrow(() -> new EntityNotFoundException(EntityType.ARTIST, "id", dto.artist().id()));
-            album.setArtist(artist);
+        album.clearGenres();
+        Set<Long> genreIds = dto.genreIds() == null ? new HashSet<>() : new HashSet<>(dto.genreIds());
+        for (Long gid : genreIds) {
+            Genre g = genreRepository.findById(gid)
+                    .orElseThrow(() -> new NotFoundException("Genre not found: " + gid));
+            album.addGenre(g);
         }
 
         album.getTracks().clear();
-
-        if (dto.tracks() != null && !dto.tracks().isEmpty()) {
-            for (TrackDTO trackDto : dto.tracks()) {
-                Track track = trackMapper.toEntity(trackDto);
-                track.setAlbum(album);
-                album.getTracks().add(track);
-            }
+        List<TrackDTO> tracks = dto.tracks() == null ? List.of() : dto.tracks();
+        for (TrackDTO t : tracks) {
+            Track track = new Track(t.title(), t.durationSec());
+            album.addTrack(track);
         }
 
-        album = albumRepository.save(album);
-        return albumMapper.toDTO(album);
+        return AlbumMapper.toDto(albumRepository.save(album));
     }
 
-    @Transactional
-    public void removeById(long id) {
-        albumRepository.deleteById(id);
+    public void delete(Long id) {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Album not found: " + id));
+        albumRepository.delete(album);
     }
 }

@@ -32,16 +32,16 @@ ON CONFLICT (name) DO NOTHING;
 -- =========================
 -- ALBUMS
 -- =========================
-INSERT INTO albums (title, release_year, artist_id)
+INSERT INTO albums (title, year, artist_id)
 SELECT 'Abbey Road', 1969, id FROM artists WHERE name = 'The Beatles' LIMIT 1;
 
-INSERT INTO albums (title, release_year, artist_id)
+INSERT INTO albums (title, year, artist_id)
 SELECT 'The Dark Side of the Moon', 1973, id FROM artists WHERE name = 'Pink Floyd' LIMIT 1;
 
-INSERT INTO albums (title, release_year, artist_id)
+INSERT INTO albums (title, year, artist_id)
 SELECT 'Led Zeppelin IV', 1971, id FROM artists WHERE name = 'Led Zeppelin' LIMIT 1;
 
-INSERT INTO albums (title, release_year, artist_id)
+INSERT INTO albums (title, year, artist_id)
 SELECT 'A Night at the Opera', 1975, id FROM artists WHERE name = 'Queen' LIMIT 1;
 
 -- =========================
@@ -66,27 +66,27 @@ INSERT INTO tracks (title, duration_sec, album_id)
 SELECT 'Bohemian Rhapsody', 355, id FROM albums WHERE title = 'A Night at the Opera' LIMIT 1;
 
 -- =========================
--- TRACK <-> GENRE
+-- ALBUM <-> GENRE (Many-to-Many)
 -- =========================
-INSERT INTO track_genres (track_id, genre_id)
-SELECT t.id, g.id FROM tracks t, genres g
-WHERE t.title = 'Come Together' AND g.name = 'Rock'
-ON CONFLICT (track_id, genre_id) DO NOTHING;
+INSERT INTO album_genres (album_id, genre_id)
+SELECT a.id, g.id FROM albums a, genres g
+WHERE a.title = 'Abbey Road' AND g.name = 'Rock'
+ON CONFLICT (album_id, genre_id) DO NOTHING;
 
-INSERT INTO track_genres (track_id, genre_id)
-SELECT t.id, g.id FROM tracks t CROSS JOIN genres g
-WHERE t.title = 'Money' AND g.name IN ('Rock', 'Progressive Rock')
-ON CONFLICT (track_id, genre_id) DO NOTHING;
+INSERT INTO album_genres (album_id, genre_id)
+SELECT a.id, g.id FROM albums a CROSS JOIN genres g
+WHERE a.title = 'The Dark Side of the Moon' AND g.name IN ('Rock', 'Progressive Rock')
+ON CONFLICT (album_id, genre_id) DO NOTHING;
 
-INSERT INTO track_genres (track_id, genre_id)
-SELECT t.id, g.id FROM tracks t, genres g
-WHERE t.title = 'Stairway to Heaven' AND g.name = 'Hard Rock'
-ON CONFLICT (track_id, genre_id) DO NOTHING;
+INSERT INTO album_genres (album_id, genre_id)
+SELECT a.id, g.id FROM albums a, genres g
+WHERE a.title = 'Led Zeppelin IV' AND g.name = 'Hard Rock'
+ON CONFLICT (album_id, genre_id) DO NOTHING;
 
-INSERT INTO track_genres (track_id, genre_id)
-SELECT t.id, g.id FROM tracks t CROSS JOIN genres g
-WHERE t.title = 'Bohemian Rhapsody' AND g.name IN ('Rock', 'Pop Rock')
-ON CONFLICT (track_id, genre_id) DO NOTHING;
+INSERT INTO album_genres (album_id, genre_id)
+SELECT a.id, g.id FROM albums a CROSS JOIN genres g
+WHERE a.title = 'A Night at the Opera' AND g.name IN ('Rock', 'Pop Rock')
+ON CONFLICT (album_id, genre_id) DO NOTHING;
 
 -- =========================
 -- PLAYLISTS (user_id nullable after V2)
