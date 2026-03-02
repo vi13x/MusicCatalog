@@ -52,13 +52,12 @@ public class Album {
     private Artist artist;
 
 
-    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "album", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"album"})
     @Builder.Default
     private List<Track> tracks = new ArrayList<>();
 
-
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "album_genres",
             joinColumns = @JoinColumn(name = "album_id"),

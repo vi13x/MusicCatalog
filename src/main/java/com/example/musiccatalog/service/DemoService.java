@@ -8,8 +8,8 @@ import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.repository.AlbumRepository;
 import com.example.musiccatalog.repository.ArtistRepository;
 import com.example.musiccatalog.repository.TrackRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -54,16 +54,25 @@ public class DemoService {
         return total;
     }
 
+    @Transactional
+    public void createAlbumWithTracksSuccess(String artistName) {
+        Artist artist = artistRepository.save(new Artist(artistName));
+        Album album = albumRepository.save(new Album("Success Album", DEMO_ALBUM_YEAR, artist));
+        Track track1 = new Track(DEMO_TRACK_TITLE_OK, DEMO_TRACK_DURATION_OK);
+        track1.setAlbum(album);
+        trackRepository.save(track1);
+    }
+
     public void createAlbumWithTracksNoTx(String artistName) {
-        createAlbumWithTracksInternal(artistName, DEMO_ALBUM_NO_TX);
+        createAlbumWithTracksInternal(artistName, DEMO_ALBUM_NO_TX, true);
     }
 
     @Transactional
     public void createAlbumWithTracksTx(String artistName) {
-        createAlbumWithTracksInternal(artistName, DEMO_ALBUM_TX);
+        createAlbumWithTracksInternal(artistName, DEMO_ALBUM_TX, true);
     }
 
-    private void createAlbumWithTracksInternal(String artistName, String albumTitle) {
+    private void createAlbumWithTracksInternal(String artistName, String albumTitle, boolean withFailingTrack) {
         Artist artist = artistRepository.save(new Artist(artistName));
         Album album = albumRepository.save(new Album(albumTitle, DEMO_ALBUM_YEAR, artist));
 
@@ -71,8 +80,10 @@ public class DemoService {
         ok.setAlbum(album);
         trackRepository.save(ok);
 
-        Track bad = new Track(null, DEMO_TRACK_DURATION_BAD);
-        bad.setAlbum(album);
-        trackRepository.saveAndFlush(bad);
+        if (withFailingTrack) {
+            Track bad = new Track(null, DEMO_TRACK_DURATION_BAD);
+            bad.setAlbum(album);
+            trackRepository.saveAndFlush(bad);
+        }
     }
 }

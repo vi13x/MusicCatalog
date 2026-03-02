@@ -9,6 +9,7 @@ import com.example.musiccatalog.mapper.TrackMapper;
 import com.example.musiccatalog.repository.AlbumRepository;
 import com.example.musiccatalog.repository.TrackRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,10 +24,12 @@ public class TrackService {
         this.albumRepository = albumRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<TrackDTO> getAll() {
         return trackRepository.findAll().stream().map(TrackMapper::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public TrackDTO getById(Long id) {
         return TrackMapper.toDto(getEntity(id));
     }

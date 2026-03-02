@@ -13,6 +13,7 @@ import com.example.musiccatalog.repository.AlbumRepository;
 import com.example.musiccatalog.repository.ArtistRepository;
 import com.example.musiccatalog.repository.GenreRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,7 @@ public class AlbumService {
         this.genreRepository = genreRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<AlbumDTO> getAll() {
         return albumRepository.findAll().stream().map(AlbumMapper::toDto).toList();
     }

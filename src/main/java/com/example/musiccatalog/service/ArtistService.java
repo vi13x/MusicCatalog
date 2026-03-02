@@ -7,6 +7,7 @@ import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.ArtistMapper;
 import com.example.musiccatalog.repository.ArtistRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class ArtistService {
         this.artistRepository = artistRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<ArtistDTO> getAll() {
         return artistRepository.findAll().stream().map(ArtistMapper::toDto).toList();
     }

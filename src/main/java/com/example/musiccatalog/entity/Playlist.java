@@ -33,7 +33,7 @@ public class Playlist {
     private User user;
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "playlist_tracks",
             joinColumns = @JoinColumn(name = "playlist_id"),

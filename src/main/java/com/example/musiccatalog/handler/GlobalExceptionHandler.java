@@ -3,6 +3,7 @@ package com.example.musiccatalog.handler;
 import com.example.musiccatalog.exception.BadRequestException;
 import com.example.musiccatalog.exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,6 +36,15 @@ public class GlobalExceptionHandler {
                 .map(fe -> fe.getField() + FIELD_SEPARATOR + fe.getDefaultMessage())
                 .orElse(VALIDATION_ERROR);
         return build(HttpStatus.BAD_REQUEST, msg, req.getRequestURI());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest req) {
+        String msg = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
+        if (msg != null && msg.contains("foreign key")) {
+            msg = "Cannot delete or update: the entity is still referenced by others (e.g. artist has albums).";
+        }
+        return build(HttpStatus.CONFLICT, Objects.requireNonNullElse(msg, "Data integrity violation"), req.getRequestURI());
     }
 
     @ExceptionHandler(RuntimeException.class)

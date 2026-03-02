@@ -33,6 +33,12 @@ public class MainController {
         return ResponseEntity.ok("Total tracks loaded (EntityGraph, no N+1): " + tracks);
     }
 
+    @GetMapping("/save-success")
+    public ResponseEntity<String> saveSuccess(@RequestParam(defaultValue = "DemoArtist") String artist) {
+        demoService.createAlbumWithTracksSuccess(artist);
+        return ResponseEntity.ok("Saved: artist + album + track (all in one transaction).");
+    }
+
     @GetMapping("/no-tx")
     public ResponseEntity<String> noTx(@RequestParam(defaultValue = "NoTxArtist") String artist) {
         demoService.createAlbumWithTracksNoTx(artist);

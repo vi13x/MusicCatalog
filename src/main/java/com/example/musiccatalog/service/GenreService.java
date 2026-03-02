@@ -7,6 +7,7 @@ import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.GenreMapper;
 import com.example.musiccatalog.repository.GenreRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class GenreService {
         this.genreRepository = genreRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<GenreDTO> getAll() {
         return genreRepository.findAll().stream().map(GenreMapper::toDto).toList();
     }
