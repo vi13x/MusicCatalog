@@ -4,7 +4,7 @@ services:
     container_name: music-postgres
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_PASSWORD: 
       POSTGRES_DB: music_catalog
     ports:
       - "5432:5432"
@@ -17,4 +17,5 @@ services:
       retries: 20
 
 volumes:
+
   pg17data:
