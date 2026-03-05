@@ -1,20 +1,14 @@
 package com.example.musiccatalog.mapper;
 
-import org.springframework.stereotype.Component;
-
 import com.example.musiccatalog.dto.GenreDTO;
 import com.example.musiccatalog.entity.Genre;
 
-@Component
-public class GenreMapper {
+public final class GenreMapper {
 
-    public Genre toEntity(GenreDTO dto) {
-        Genre genre = new Genre();
-        genre.setName(dto.name());
-        return genre;
+    private GenreMapper() {
     }
 
-    public GenreDTO toDTO(Genre entity) {
-        return new GenreDTO(entity.getId(), entity.getName());
+    public static GenreDTO toDto(Genre g) {
+        return new GenreDTO(g.getId(), g.getName());
     }
 }

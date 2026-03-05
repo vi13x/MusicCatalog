@@ -1,34 +1,22 @@
 package com.example.musiccatalog.mapper;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
-
 import com.example.musiccatalog.dto.PlaylistDTO;
-import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.entity.Playlist;
 import com.example.musiccatalog.entity.Track;
 
-import lombok.AllArgsConstructor;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-@Component
-@AllArgsConstructor
-public class PlaylistMapper {
+public final class PlaylistMapper {
 
-    private final TrackMapper trackMapper;
-
-    public Playlist toEntity(PlaylistDTO dto) {
-        Playlist playlist = new Playlist();
-        playlist.setName(dto.name());
-        return playlist;
+    private PlaylistMapper() {
     }
 
-    public PlaylistDTO toDTO(Playlist entity) {
-        Set<TrackDTO> tracksDto = entity.getTracks() != null
-                ? entity.getTracks().stream().map(trackMapper::toDTO).collect(Collectors.toSet())
-                : Set.of();
+    public static PlaylistDTO toDto(Playlist p) {
+        Set<Long> trackIds = p.getTracks().stream()
+                .map(Track::getId)
+                .collect(Collectors.toSet());
 
-        return new PlaylistDTO(entity.getId(), entity.getName(), tracksDto);
+        return new PlaylistDTO(p.getId(), p.getName(), trackIds);
     }
 }

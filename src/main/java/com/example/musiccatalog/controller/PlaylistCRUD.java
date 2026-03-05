@@ -1,8 +1,8 @@
 package com.example.musiccatalog.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
+import com.example.musiccatalog.dto.PlaylistDTO;
+import com.example.musiccatalog.service.PlaylistService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,41 +13,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.musiccatalog.dto.PlaylistDTO;
-import com.example.musiccatalog.service.PlaylistService;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 @RestController
-@RequestMapping("/playlists")
+@RequestMapping("/api/playlists")
 public class PlaylistCRUD {
 
-    private final PlaylistService playlistService;
+    private final PlaylistService service;
 
-    @PostMapping("/create")
-    public ResponseEntity<PlaylistDTO> create(@RequestBody PlaylistDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(playlistService.create(request));
+    public PlaylistCRUD(PlaylistService service) {
+        this.service = service;
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<PlaylistDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.FOUND).body(playlistService.findById(id));
+    @GetMapping
+    public List<PlaylistDTO> getAll() {
+        return service.getAll();
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<PlaylistDTO>> findAll() {
-        return ResponseEntity.status(HttpStatus.FOUND).body(playlistService.findAll());
+    @GetMapping("/{id}")
+    public PlaylistDTO getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<PlaylistDTO> update(@RequestBody PlaylistDTO request) {
-        return ResponseEntity.status(HttpStatus.OK).body(playlistService.update(request));
+    @PostMapping
+    public ResponseEntity<PlaylistDTO> create(@Valid @RequestBody PlaylistDTO dto) {
+        return ResponseEntity.ok(service.create(dto));
     }
 
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<String> removeById(@PathVariable Long id) {
-        playlistService.removeById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Deleted");
+    @PutMapping("/{id}")
+    public PlaylistDTO update(@PathVariable Long id, @Valid @RequestBody PlaylistDTO dto) {
+        return service.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

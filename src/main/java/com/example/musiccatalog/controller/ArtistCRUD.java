@@ -1,8 +1,8 @@
 package com.example.musiccatalog.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
+import com.example.musiccatalog.dto.ArtistDTO;
+import com.example.musiccatalog.service.ArtistService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,41 +13,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.musiccatalog.dto.ArtistDTO;
-import com.example.musiccatalog.service.ArtistService;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 @RestController
-@RequestMapping("/artists")
+@RequestMapping("/api/artists")
 public class ArtistCRUD {
 
-    private final ArtistService artistService;
+    private final ArtistService service;
 
-    @PostMapping("/create")
-    public ResponseEntity<ArtistDTO> create(@RequestBody ArtistDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(artistService.create(request));
+    public ArtistCRUD(ArtistService service) {
+        this.service = service;
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<ArtistDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.FOUND).body(artistService.findById(id));
+    @GetMapping
+    public List<ArtistDTO> getAll() {
+        return service.getAll();
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<ArtistDTO>> findAll() {
-        return ResponseEntity.status(HttpStatus.FOUND).body(artistService.findAll());
+    @GetMapping("/{id}")
+    public ArtistDTO getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<ArtistDTO> update(@RequestBody ArtistDTO request) {
-        return ResponseEntity.status(HttpStatus.OK).body(artistService.update(request));
+    @PostMapping
+    public ResponseEntity<ArtistDTO> create(@Valid @RequestBody ArtistDTO dto) {
+        return ResponseEntity.ok(service.create(dto));
     }
 
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<String> removeById(@PathVariable Long id) {
-        artistService.removeById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Deleted");
+    @PutMapping("/{id}")
+    public ArtistDTO update(@PathVariable Long id, @Valid @RequestBody ArtistDTO dto) {
+        return service.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

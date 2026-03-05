@@ -1,8 +1,8 @@
 package com.example.musiccatalog.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
+import com.example.musiccatalog.dto.GenreDTO;
+import com.example.musiccatalog.service.GenreService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,41 +13,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.musiccatalog.dto.GenreDTO;
-import com.example.musiccatalog.service.GenreService;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 @RestController
-@RequestMapping("/genres")
+@RequestMapping("/api/genres")
 public class GenreCRUD {
 
-    private final GenreService genreService;
+    private final GenreService service;
 
-    @PostMapping("/create")
-    public ResponseEntity<GenreDTO> create(@RequestBody GenreDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(genreService.create(request));
+    public GenreCRUD(GenreService service) {
+        this.service = service;
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<GenreDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.FOUND).body(genreService.findById(id));
+    @GetMapping
+    public List<GenreDTO> getAll() {
+        return service.getAll();
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<GenreDTO>> findAll() {
-        return ResponseEntity.status(HttpStatus.FOUND).body(genreService.findAll());
+    @GetMapping("/{id}")
+    public GenreDTO getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<GenreDTO> update(@RequestBody GenreDTO request) {
-        return ResponseEntity.status(HttpStatus.OK).body(genreService.update(request));
+    @PostMapping
+    public ResponseEntity<GenreDTO> create(@Valid @RequestBody GenreDTO dto) {
+        return ResponseEntity.ok(service.create(dto));
     }
 
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<String> removeById(@PathVariable Long id) {
-        genreService.removeById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Deleted");
+    @PutMapping("/{id}")
+    public GenreDTO update(@PathVariable Long id, @Valid @RequestBody GenreDTO dto) {
+        return service.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

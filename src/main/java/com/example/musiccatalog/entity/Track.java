@@ -1,8 +1,5 @@
 package com.example.musiccatalog.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,17 +7,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "tracks")
 public class Track {
@@ -29,20 +18,49 @@ public class Track {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 160)
     private String title;
 
-    @Column(name = "duration_sec", nullable = false)
-    private Integer durationSeconds;
+    @Column(nullable = false)
+    private Integer durationSec;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "track_genres",
-            joinColumns = @JoinColumn(name = "track_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    private Set<Genre> genres = new HashSet<>();
+    public Track() {
+    }
+
+    public Track(String title, Integer durationSec) {
+        this.title = title;
+        this.durationSec = durationSec;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Integer getDurationSec() {
+        return durationSec;
+    }
+
+    public Album getAlbum() {
+        return album;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDurationSec(Integer durationSec) {
+        this.durationSec = durationSec;
+    }
+
+    public void setAlbum(Album album) {
+        this.album = album;
+    }
 }
