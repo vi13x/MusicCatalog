@@ -38,12 +38,14 @@ public class AlbumService {
         return albumRepository.findAll().stream().map(AlbumMapper::toDto).toList();
     }
 
+    @Transactional(readOnly = true)
     public AlbumDTO getById(Long id) {
         Album a = albumRepository.findWithAllById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
         return AlbumMapper.toDto(a);
     }
 
+    @Transactional
     public AlbumDTO create(AlbumDTO dto) {
         Artist artist = artistRepository.findById(dto.artistId())
                 .orElseThrow(() -> new NotFoundException(ErrorMessages.ARTIST_NOT_FOUND + dto.artistId()));
@@ -55,6 +57,7 @@ public class AlbumService {
         return AlbumMapper.toDto(albumRepository.save(album));
     }
 
+    @Transactional
     public AlbumDTO update(Long id, AlbumDTO dto) {
         Album album = albumRepository.findWithAllById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
@@ -67,6 +70,13 @@ public class AlbumService {
         applyTracks(album, dto.tracks());
 
         return AlbumMapper.toDto(albumRepository.save(album));
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
+        albumRepository.delete(album);
     }
 
     private void applyGenres(Album album, Set<Long> genreIds) {
@@ -86,9 +96,4 @@ public class AlbumService {
         }
     }
 
-    public void delete(Long id) {
-        Album album = albumRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
-        albumRepository.delete(album);
-    }
 }
