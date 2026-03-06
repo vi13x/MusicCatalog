@@ -24,7 +24,7 @@ public class Artist {
     @Column(nullable = false, unique = true, length = 120)
     private String name;
 
-    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Album> albums = new ArrayList<>();
 
     public Artist() {

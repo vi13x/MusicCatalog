@@ -40,8 +40,11 @@ public class ArtistService {
         return ArtistMapper.toDto(artistRepository.save(a));
     }
 
+    @Transactional
     public void delete(Long id) {
-        artistRepository.delete(getEntity(id));
+        Artist artist = artistRepository.findByIdWithAlbums(id)
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ARTIST_NOT_FOUND + id));
+        artistRepository.delete(artist);
     }
 
     public Artist getEntity(Long id) {

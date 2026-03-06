@@ -74,8 +74,9 @@ public class AlbumService {
 
     @Transactional
     public void delete(Long id) {
-        Album album = albumRepository.findById(id)
+        Album album = albumRepository.findWithAllById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
+        album.clearGenres();
         albumRepository.delete(album);
     }
 
