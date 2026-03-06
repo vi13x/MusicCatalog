@@ -38,13 +38,24 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, msg, req.getRequestURI());
     }
 
+    private static final String PARTIAL_SAVE_DEMO =
+            "Partial save (no @Transactional): artist and album were created; track insert failed (e.g. null title).";
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest req) {
+        String path = req.getRequestURI();
         String msg = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
-        if (msg != null && msg.contains("foreign key")) {
+        if (path != null && path.contains("/demo/no-tx") && msg != null && msg.contains("title")) {
+            msg = PARTIAL_SAVE_DEMO + " DB: " + msg;
+        } else if (path != null && path.contains("/demo/tx") && msg != null && msg.contains("title")) {
+            msg = "Transaction rolled back: artist, album and tracks were not saved. DB: " + msg;
+        } else if (msg != null && msg.contains("foreign key")) {
             msg = "Cannot delete or update: the entity is still referenced by others (e.g. artist has albums).";
         }
-        return build(HttpStatus.CONFLICT, Objects.requireNonNullElse(msg, "Data integrity violation"), req.getRequestURI());
+        msg = Objects.requireNonNullElse(msg, "Data integrity violation");
+        boolean isDemo = path != null && (path.contains("/demo/tx") || path.contains("/demo/no-tx"));
+        HttpStatus status = isDemo ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.CONFLICT;
+        return build(status, msg, path);
     }
 
     @ExceptionHandler(RuntimeException.class)

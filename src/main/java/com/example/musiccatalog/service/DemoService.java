@@ -35,6 +35,7 @@ public class DemoService {
         this.trackRepository = trackRepository;
     }
 
+    @Transactional
     public int nPlusOneDemo(List<Long> albumIds) {
         int total = 0;
         for (Long id : albumIds) {
@@ -46,7 +47,7 @@ public class DemoService {
     }
 
     public int nPlusOneFixed(List<Long> albumIds) {
-        List<Album> albums = albumRepository.findAllByIdIn(albumIds);
+        List<Album> albums = albumRepository.findAllByIdInWithTracks(albumIds);
         int total = 0;
         for (Album a : albums) {
             total += a.getTracks().size();
@@ -64,7 +65,11 @@ public class DemoService {
     }
 
     public void createAlbumWithTracksNoTx(String artistName) {
-        createAlbumWithTracksInternal(artistName, DEMO_ALBUM_NO_TX, true);
+        Artist artist = artistRepository.save(new Artist(artistName));
+        Album album = albumRepository.save(new Album(DEMO_ALBUM_NO_TX, DEMO_ALBUM_YEAR, artist));
+        Track bad = new Track(null, DEMO_TRACK_DURATION_BAD);
+        bad.setAlbum(album);
+        trackRepository.saveAndFlush(bad);
     }
 
     @Transactional
