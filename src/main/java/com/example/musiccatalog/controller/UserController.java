@@ -1,7 +1,7 @@
 package com.example.musiccatalog.controller;
 
-import com.example.musiccatalog.dto.PlaylistDTO;
-import com.example.musiccatalog.service.PlaylistService;
+import com.example.musiccatalog.dto.UserDTO;
+import com.example.musiccatalog.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,32 +16,32 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/playlists")
-public class PlaylistCRUD {
+@RequestMapping("/api/users")
+public class UserController {
 
-    private final PlaylistService service;
+    private final UserService service;
 
-    public PlaylistCRUD(PlaylistService service) {
+    public UserController(UserService service) {
         this.service = service;
     }
 
     @GetMapping
-    public List<PlaylistDTO> getAll() {
+    public List<UserDTO> getAll() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public PlaylistDTO getById(@PathVariable Long id) {
+    public UserDTO getById(@PathVariable Long id) {
         return service.getById(id);
     }
 
     @PostMapping
-    public ResponseEntity<PlaylistDTO> create(@Valid @RequestBody PlaylistDTO dto) {
+    public ResponseEntity<UserDTO> create(@Valid @RequestBody UserDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public PlaylistDTO update(@PathVariable Long id, @Valid @RequestBody PlaylistDTO dto) {
+    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
         return service.update(id, dto);
     }
 

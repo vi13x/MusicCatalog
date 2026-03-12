@@ -11,6 +11,9 @@ import java.util.Optional;
 
 public interface AlbumRepository extends JpaRepository<Album, Long> {
 
+    @Override
+    @EntityGraph(attributePaths = {"artist", "tracks", "genres"})
+    List<Album> findAll();
 
     @EntityGraph(attributePaths = {"artist", "tracks", "genres"})
     Optional<Album> findWithAllById(Long id);
