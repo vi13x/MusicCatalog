@@ -6,18 +6,19 @@ import com.example.musiccatalog.exception.ErrorMessages;
 import com.example.musiccatalog.exception.NotFoundException;
 import com.example.musiccatalog.mapper.GenreMapper;
 import com.example.musiccatalog.repository.GenreRepository;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class GenreService {
 
     private final GenreRepository genreRepository;
+    private final AlbumSearchIndex albumSearchIndex;
 
-    public GenreService(GenreRepository genreRepository) {
+    public GenreService(GenreRepository genreRepository, AlbumSearchIndex albumSearchIndex) {
         this.genreRepository = genreRepository;
+        this.albumSearchIndex = albumSearchIndex;
     }
 
     @Transactional(readOnly = true)
@@ -29,19 +30,27 @@ public class GenreService {
         return GenreMapper.toDto(getEntity(id));
     }
 
+    @Transactional
     public GenreDTO create(GenreDTO dto) {
-        Genre g = new Genre(dto.name());
-        return GenreMapper.toDto(genreRepository.save(g));
+        Genre genre = new Genre(dto.name());
+        GenreDTO saved = GenreMapper.toDto(genreRepository.save(genre));
+        albumSearchIndex.clear();
+        return saved;
     }
 
+    @Transactional
     public GenreDTO update(Long id, GenreDTO dto) {
-        Genre g = getEntity(id);
-        g.setName(dto.name());
-        return GenreMapper.toDto(genreRepository.save(g));
+        Genre genre = getEntity(id);
+        genre.setName(dto.name());
+        GenreDTO saved = GenreMapper.toDto(genreRepository.save(genre));
+        albumSearchIndex.clear();
+        return saved;
     }
 
+    @Transactional
     public void delete(Long id) {
         genreRepository.delete(getEntity(id));
+        albumSearchIndex.clear();
     }
 
     public Genre getEntity(Long id) {

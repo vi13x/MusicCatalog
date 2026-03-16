@@ -8,6 +8,7 @@ public final class ErrorMessages {
     public static final String TRACK_NOT_FOUND = "Track not found: ";
     public static final String PLAYLIST_NOT_FOUND = "Playlist not found: ";
     public static final String USER_NOT_FOUND = "User not found: ";
+    public static final String INVALID_ALBUM_YEAR_RANGE = "Album search yearFrom must be less than or equal to yearTo";
 
     private ErrorMessages() {
     }
