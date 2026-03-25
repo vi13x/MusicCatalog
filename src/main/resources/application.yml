@@ -1,12 +1,23 @@
+server:
+  port: 8087
+
 logging:
+  file:
+    path: logs
   level:
+    root: INFO
+    com.example.musiccatalog: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
     org.flywaydb.core.internal.database.base.Database: ERROR
 
 spring:
+  application:
+    name: music-catalog
   datasource:
     url: jdbc:postgresql://localhost:5432/music_catalog
-    username: postgres
-    password: 1234
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1234}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,3 +30,11 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: false
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
