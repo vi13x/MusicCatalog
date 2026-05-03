@@ -30,4 +30,7 @@ public record TrackDTO(
         @Schema(description = "Album identifier owning the track", example = "1")
         Long albumId
 ) {
+    public TrackDTO(Long id, String title, Integer durationSec, Long albumId) {
+        this(id, title, durationSec, null, albumId);
+    }
 }
