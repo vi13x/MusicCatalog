@@ -45,6 +45,14 @@
 <div id="tracks"></div>
 
 <script>
+    const playableTracks = [
+        "Save Your Tears",
+        "Blinding Lights",
+        "Hardest To Love",
+        "Too Late",
+        "Alone Again"
+    ];
+
     async function loadTracks() {
         const response = await fetch('/api/tracks');
         const tracks = await response.json();
@@ -56,14 +64,16 @@
             const div = document.createElement('div');
             div.className = 'track';
 
+            let audioBlock = `<p>Аудио недоступно</p>`;
+
+            if (playableTracks.includes(track.title) && track.audioUrl) {
+                audioBlock = `<audio controls src="${track.audioUrl}"></audio>`;
+            }
+
             div.innerHTML = `
                 <div class="track-title">${track.title}</div>
                 <div class="duration">Длительность: ${track.durationSec} сек.</div>
-                ${
-                track.audioUrl
-                    ? `<audio controls src="${track.audioUrl}"></audio>`
-                    : `<p>Аудио недоступно</p>`
-            }
+                ${audioBlock}
             `;
 
             container.appendChild(div);
