@@ -25,7 +25,6 @@ services:
   region: oregon # Должен совпадать с регионом приложения
   plan: free
   databaseName: music_catalog
-  postgresVersion: 16
   ipAllowList: [] # Разрешает подключение только от сервисов Render
   # envVars:
   # - key: PG_VERSION
