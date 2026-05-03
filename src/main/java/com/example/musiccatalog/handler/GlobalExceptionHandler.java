@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -105,6 +106,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleNotReadable(HttpMessageNotReadableException ex, HttpServletRequest req) {
         log.warn("Malformed request body on {} {}: {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
         return build(HttpStatus.BAD_REQUEST, "MALFORMED_REQUEST", "Malformed JSON request body", req, List.of());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResource(NoResourceFoundException ex, HttpServletRequest req) {
+        log.warn("No route or static resource for {} {}", req.getMethod(), req.getRequestURI());
+        return build(HttpStatus.NOT_FOUND, "NOT_FOUND", "Resource not found", req, List.of());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

@@ -11,9 +11,10 @@ import com.example.musiccatalog.repository.TrackRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PlaylistService {
@@ -54,18 +55,21 @@ public class PlaylistService {
     }
 
     private void applyTrackIds(Playlist playlist, Set<Long> trackIds) {
-        Set<Long> ids = trackIds == null ? new HashSet<>() : new HashSet<>(trackIds);
-        Set<Track> tracks = new HashSet<>();
-        for (Long tid : ids) {
-            Track t = trackRepository.findById(tid)
-                    .orElseThrow(() -> new NotFoundException(ErrorMessages.TRACK_NOT_FOUND + tid));
-            tracks.add(t);
-        }
+        Set<Track> tracks = Optional.ofNullable(trackIds)
+                .orElseGet(Set::of)
+                .stream()
+                .map(this::getTrackEntity)
+                .collect(Collectors.toSet());
         playlist.setTracks(tracks);
     }
 
     private Playlist getEntity(Long id) {
         return playlistRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + id));
+    }
+
+    private Track getTrackEntity(Long trackId) {
+        return trackRepository.findById(trackId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.TRACK_NOT_FOUND + trackId));
     }
 }

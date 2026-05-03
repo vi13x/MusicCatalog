@@ -15,7 +15,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Music Catalog API")
-                        .description("REST API for managing artists, albums, tracks, genres, playlists and users.")
+                        .description("REST API for managing artists, albums, tracks, genres and playlists.")
                         .version("v1")
                         .contact(new Contact().name("Music Catalog"))
                         .license(new License().name("Internal project")));

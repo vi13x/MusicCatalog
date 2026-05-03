@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.util.HashSet;
@@ -26,11 +25,6 @@ public class Playlist {
     @Column(nullable = false, length = 120)
     private String name;
 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
 
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -56,20 +50,12 @@ public class Playlist {
         return name;
     }
 
-    public User getUser() {
-        return user;
-    }
-
     public Set<Track> getTracks() {
         return tracks;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public void setTracks(Set<Track> tracks) {

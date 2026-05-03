@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Catalog</title>
+    <link rel="stylesheet" href="/styles.css?v=20260427-ui2">
+</head>
+<body>
+<div class="page">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark">M</span>
+            <div>
+                <p class="eyebrow">Коллекция</p>
+                <h1>Music Catalog</h1>
+            </div>
+        </div>
+        <nav id="nav" class="nav" aria-label="Разделы каталога"></nav>
+        <div class="sidebar-note">
+            <label class="theme-toggle" for="theme-toggle">
+                <span>Темная</span>
+                <input id="theme-toggle" type="checkbox">
+                <span class="theme-switch" aria-hidden="true"></span>
+                <span>Светлая</span>
+            </label>
+        </div>
+    </aside>
+
+    <main id="app" class="app-shell"></main>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="/app.js?v=20260427-ui2"></script>
+</body>
+</html>

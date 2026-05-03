@@ -13,13 +13,13 @@ import org.springframework.data.repository.query.Param;
 public interface AlbumRepository extends JpaRepository<Album, Long> {
 
     @Override
-    @EntityGraph(attributePaths = {"artist", "tracks", "genres"})
+    @EntityGraph(attributePaths = {"artist"})
     List<Album> findAll();
 
-    @EntityGraph(attributePaths = {"artist", "tracks", "genres"})
+    @EntityGraph(attributePaths = {"artist"})
     Optional<Album> findWithAllById(Long id);
 
-    @EntityGraph(attributePaths = {"artist", "tracks", "genres"})
+    @EntityGraph(attributePaths = {"artist"})
     List<Album> findAllByIdIn(Iterable<Long> ids);
 
     @Query("SELECT a FROM Album a WHERE a.id IN :ids")

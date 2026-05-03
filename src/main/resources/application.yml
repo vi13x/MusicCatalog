@@ -38,3 +38,10 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: alpha
     tags-sorter: alpha
+
+app:
+  async:
+    bulk-track-delay-ms: 10000
+    bulk-track-core-pool-size: 16
+    bulk-track-max-pool-size: 32
+    bulk-track-queue-capacity: 10000

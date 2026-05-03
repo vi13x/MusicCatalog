@@ -1,10 +1,17 @@
 package com.example.musiccatalog.controller;
 
 import com.example.musiccatalog.dto.AlbumDTO;
+import com.example.musiccatalog.dto.AsyncTaskAcceptedDTO;
+import com.example.musiccatalog.dto.BulkTrackTaskStatusDTO;
+import com.example.musiccatalog.dto.TrackBulkCreateItemDTO;
+import com.example.musiccatalog.dto.TrackDTO;
 import com.example.musiccatalog.service.AlbumService;
+import com.example.musiccatalog.service.BulkTrackTaskService;
+import com.example.musiccatalog.service.TrackService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.util.List;
@@ -33,9 +40,15 @@ import org.springdoc.core.annotations.ParameterObject;
 public class AlbumController {
 
     private final AlbumService service;
+    private final TrackService trackService;
+    private final BulkTrackTaskService bulkTrackTaskService;
 
-    public AlbumController(AlbumService service) {
+    public AlbumController(AlbumService service,
+                           TrackService trackService,
+                           BulkTrackTaskService bulkTrackTaskService) {
         this.service = service;
+        this.trackService = trackService;
+        this.bulkTrackTaskService = bulkTrackTaskService;
     }
 
     @GetMapping
@@ -76,6 +89,48 @@ public class AlbumController {
     @Operation(summary = "Create album", description = "Creates a new album with artist, tracks and genres.")
     public ResponseEntity<AlbumDTO> create(@Valid @RequestBody AlbumDTO dto) {
         return ResponseEntity.ok(service.create(dto));
+    }
+
+    @PostMapping("/{albumId}/tracks/bulk")
+    @Operation(
+            summary = "Start asynchronous bulk track creation in album",
+            description = "Starts atomic bulk creation of tracks inside one album with an artificial delay for manual async demonstration."
+    )
+    public ResponseEntity<AsyncTaskAcceptedDTO> createTracksBulk(@PathVariable @Positive Long albumId,
+                                                                 @Valid @RequestBody @NotEmpty List<@Valid TrackBulkCreateItemDTO> tracks) {
+        return ResponseEntity.accepted().body(bulkTrackTaskService.startBulkCreation(albumId, tracks));
+    }
+
+    @PostMapping("/{albumId}/tracks/bulk/no-delay")
+    @Operation(
+            summary = "Start asynchronous bulk track creation in album without delay",
+            description = "Starts atomic bulk creation of tracks inside one album without the demonstration delay. Intended for automated checks and load testing."
+    )
+    public ResponseEntity<AsyncTaskAcceptedDTO> createTracksBulkWithoutDelay(@PathVariable @Positive Long albumId,
+                                                                             @Valid @RequestBody @NotEmpty List<@Valid TrackBulkCreateItemDTO> tracks) {
+        return ResponseEntity.accepted().body(bulkTrackTaskService.startBulkCreationWithoutDelay(albumId, tracks));
+    }
+
+    @GetMapping("/{albumId}/tracks/bulk/{taskId}")
+    @Operation(
+            summary = "Get status of asynchronous bulk track creation",
+            description = "Returns current status and result of previously started bulk track creation for the album."
+    )
+    public BulkTrackTaskStatusDTO getTracksBulkStatus(@PathVariable @Positive Long albumId,
+                                                      @PathVariable @Positive Long taskId) {
+        return bulkTrackTaskService.getTaskStatus(albumId, taskId);
+    }
+
+    @PostMapping("/{albumId}/tracks/bulk/non-transactional")
+    @Operation(
+            summary = "Bulk create tracks in album without outer transaction",
+            description = "Alternative bulk creation endpoint without a service-level transaction, so a failure may leave partially persisted data."
+    )
+    public ResponseEntity<List<TrackDTO>> createTracksBulkWithoutTransaction(
+            @PathVariable @Positive Long albumId,
+            @Valid @RequestBody @NotEmpty List<@Valid TrackBulkCreateItemDTO> tracks
+    ) {
+        return ResponseEntity.ok(trackService.createBulkWithoutTransaction(albumId, tracks));
     }
 
     @PutMapping("/{id}")

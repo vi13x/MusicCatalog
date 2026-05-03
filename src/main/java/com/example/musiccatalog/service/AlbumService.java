@@ -13,8 +13,11 @@ import com.example.musiccatalog.mapper.AlbumMapper;
 import com.example.musiccatalog.repository.AlbumRepository;
 import com.example.musiccatalog.repository.ArtistRepository;
 import com.example.musiccatalog.repository.GenreRepository;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -94,11 +97,16 @@ public class AlbumService {
         Album album = albumRepository.findWithAllById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMessages.ALBUM_NOT_FOUND + id));
 
+        Artist artist = artistRepository.findById(dto.artistId())
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.ARTIST_NOT_FOUND + dto.artistId()));
+
         album.setTitle(dto.title());
         album.setYear(dto.year());
+        album.setArtist(artist);
         album.clearGenres();
         applyGenres(album, dto.genreIds());
         album.getTracks().clear();
+        albumRepository.flush();
         applyTracks(album, dto.tracks());
 
         AlbumDTO saved = AlbumMapper.toDto(albumRepository.save(album));
@@ -196,20 +204,51 @@ public class AlbumService {
     }
 
     private void applyGenres(Album album, Set<Long> genreIds) {
-        Set<Long> ids = genreIds == null ? Set.of() : genreIds;
-        for (Long genreId : ids) {
-            Genre genre = genreRepository.findById(genreId)
-                    .orElseThrow(() -> new NotFoundException(ErrorMessages.GENRE_NOT_FOUND + genreId));
-            album.addGenre(genre);
-        }
+        Optional.ofNullable(genreIds)
+                .orElseGet(Set::of)
+                .stream()
+                .map(this::getGenreEntity)
+                .forEach(album::addGenre);
     }
 
     private void applyTracks(Album album, List<TrackDTO> trackDtos) {
-        List<TrackDTO> tracks = trackDtos == null ? List.of() : trackDtos;
-        for (TrackDTO trackDto : tracks) {
-            Track track = new Track(trackDto.title(), trackDto.durationSec());
-            album.addTrack(track);
+        List<Track> tracks = Optional.ofNullable(trackDtos)
+                .orElseGet(List::of)
+                .stream()
+                .map(trackDto -> new Track(normalizeTrackTitle(trackDto), validateTrackDuration(trackDto)))
+                .toList();
+
+        Set<String> seenTitles = new HashSet<>();
+        for (Track track : tracks) {
+            if (!seenTitles.add(track.getTitle().toLowerCase(Locale.ROOT))) {
+                throw new BadRequestException(ErrorMessages.TRACK_TITLE_ALREADY_EXISTS_IN_ALBUM);
+            }
         }
+
+        tracks.forEach(album::addTrack);
+    }
+
+    private String normalizeTrackTitle(TrackDTO trackDto) {
+        return Optional.ofNullable(trackDto)
+                .map(TrackDTO::title)
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .orElseThrow(() -> new BadRequestException("Track title must not be blank"));
+    }
+
+    private Integer validateTrackDuration(TrackDTO trackDto) {
+        Integer duration = Optional.ofNullable(trackDto)
+                .map(TrackDTO::durationSec)
+                .orElseThrow(() -> new BadRequestException("Track duration must not be blank"));
+        if (duration < 1) {
+            throw new BadRequestException("Track duration must be positive");
+        }
+        return duration;
+    }
+
+    private Genre getGenreEntity(Long genreId) {
+        return genreRepository.findById(genreId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessages.GENRE_NOT_FOUND + genreId));
     }
 
     private void invalidateSearchIndex() {
