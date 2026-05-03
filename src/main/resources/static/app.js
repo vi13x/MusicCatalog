@@ -21,6 +21,7 @@ const state = {
     error: "",
     editing: null,
     detailModal: null,
+    previewTrackId: null,
     localFilters: {},
     pagination: {
         albums: 1,
@@ -49,8 +50,14 @@ const resourceLabels = {
 
 const PAGE_SIZE = 12;
 const INLINE_LIST_PREVIEW_LENGTH = 52;
+const DEMO_TRACK_PREVIEWS = {
+    "blinding lights": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "get lucky": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "bohemian rhapsody": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+};
 
 let toastTimer = null;
+let previewAudio = null;
 const themeToggle = document.getElementById("theme-toggle");
 
 initTheme();
@@ -526,11 +533,25 @@ function renderTrackList(tracks, startIndex = 0) {
                         <div class="track-meta">${escapeHtml(getArtistForTrack(track))}</div>
                     </div>
                     <div class="track-album muted">${escapeHtml(getAlbumName(track.albumId))}</div>
+                    <div>${renderTrackPreviewButton(track)}</div>
                     <div class="muted">${escapeHtml(formatDuration(track.durationSec))}</div>
                     <div class="row-actions">${renderActionButtons("tracks", track.id)}</div>
                 </div>
             `).join("")}
         </div>
+    `;
+}
+
+function renderTrackPreviewButton(track) {
+    const previewUrl = getTrackPreviewUrl(track);
+    if (!previewUrl) {
+        return `<span class="muted">—</span>`;
+    }
+    const isPlaying = state.previewTrackId === Number(track.id);
+    return `
+        <button class="preview-button" type="button" data-action="preview-track" data-id="${escapeAttr(track.id)}">
+            ${isPlaying ? "Пауза" : "▶ Прослушать"}
+        </button>
     `;
 }
 
@@ -871,9 +892,47 @@ async function handleClick(event) {
         return;
     }
 
+    if (action === "preview-track") {
+        toggleTrackPreview(Number(id));
+        render();
+        return;
+    }
+
     if (action === "delete") {
         await deleteResource(resource, Number(id));
     }
+}
+
+function toggleTrackPreview(trackId) {
+    const track = getItem("tracks", trackId);
+    const previewUrl = getTrackPreviewUrl(track);
+    if (!previewUrl) {
+        showToast("Для этого трека демо-прослушивание пока недоступно");
+        return;
+    }
+
+    if (state.previewTrackId === trackId && previewAudio) {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+        state.previewTrackId = null;
+        return;
+    }
+
+    if (previewAudio) {
+        previewAudio.pause();
+    }
+
+    previewAudio = new Audio(previewUrl);
+    previewAudio.addEventListener("ended", () => {
+        state.previewTrackId = null;
+        render();
+    });
+    previewAudio.play().catch(() => {
+        state.previewTrackId = null;
+        showToast("Не удалось запустить аудио-превью");
+        render();
+    });
+    state.previewTrackId = trackId;
 }
 
 function closeTopModal() {
@@ -1271,6 +1330,11 @@ function getAlbumTracks(album) {
 function getTracksByIds(trackIds) {
     const ids = new Set(asNumberArray(trackIds));
     return state.data.tracks.filter((track) => ids.has(Number(track.id)));
+}
+
+function getTrackPreviewUrl(track) {
+    const titleKey = normalizeString(track?.title).toLowerCase();
+    return DEMO_TRACK_PREVIEWS[titleKey] || null;
 }
 
 function getArtistName(artistId) {
