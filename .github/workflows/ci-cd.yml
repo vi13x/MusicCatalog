@@ -1,0 +1,57 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test-healthcheck:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 1234
+          POSTGRES_DB: music_catalog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d music_catalog"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: chmod +x mvnw
+
+      - name: Run tests
+        run: ./mvnw clean test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/music_catalog
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: 1234
+
+      - name: Build Docker
+        run: docker build -t app .
+
+      - name: Run app
+        run: docker compose up -d
+
+      - name: Healthcheck
+        run: |
+          for i in {1..20}; do
+            if curl -f http://localhost:8087/actuator/health; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
