@@ -8,21 +8,6 @@ jobs:
   build-test-healthcheck:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 1234
-          POSTGRES_DB: music_catalog
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d music_catalog"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=20
-
     steps:
       - uses: actions/checkout@v4
 
@@ -32,17 +17,6 @@ jobs:
           java-version: 21
 
       - run: chmod +x mvnw
-
-      - name: Run tests
-        run: ./mvnw clean test
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/music_catalog
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: 1234
-          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-
-      - name: Build Docker image
-        run: docker build -t music-catalog-app .
 
       - name: Start app with Docker Compose
         run: |
@@ -58,13 +32,22 @@ jobs:
         run: |
           for i in {1..30}; do
             if curl -f http://localhost:8087/actuator/health; then
-              echo "OK"
+              echo "Application is healthy"
               exit 0
             fi
+            echo "Waiting for application..."
             sleep 5
           done
           docker compose logs
           exit 1
+
+      - name: Run tests
+        run: ./mvnw clean test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/music_catalog
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: 1234
+          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
 
       - name: Stop Docker Compose
         if: always()
