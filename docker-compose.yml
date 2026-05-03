@@ -1,15 +1,12 @@
 services:
   postgres:
     image: postgres:17
-    container_name: music-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "${POSTGRES_PORT}:5432"
-    volumes:
-      - pg17data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -17,12 +14,9 @@ services:
       retries: 20
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: music-catalog-app
+    build: .
     ports:
-      - "${APP_PORT}:${APP_PORT}"
+      - "${APP_PORT}:8087"
     environment:
       PORT: ${APP_PORT}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -32,12 +26,3 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:${APP_PORT}/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
-
-volumes:
-  pg17data:
