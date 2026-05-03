@@ -1,37 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
     <title>Music Catalog</title>
-    <link rel="stylesheet" href="/styles.css?v=20260427-ui2">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: white;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #1db954;
+        }
+
+        .track {
+            background: #1e1e1e;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+        }
+
+        .track-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .duration {
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        audio {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-<div class="page">
-    <aside class="sidebar">
-        <div class="brand">
-            <span class="brand-mark">M</span>
-            <div>
-                <p class="eyebrow">Коллекция</p>
-                <h1>Music Catalog</h1>
-            </div>
-        </div>
-        <nav id="nav" class="nav" aria-label="Разделы каталога"></nav>
-        <div class="sidebar-note">
-            <label class="theme-toggle" for="theme-toggle">
-                <span>Темная</span>
-                <input id="theme-toggle" type="checkbox">
-                <span class="theme-switch" aria-hidden="true"></span>
-                <span>Светлая</span>
-            </label>
-        </div>
-    </aside>
 
-    <main id="app" class="app-shell"></main>
-</div>
+<h1>Music Catalog</h1>
 
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="tracks"></div>
 
-<script type="module" src="/app.js?v=20260427-ui2"></script>
+<script>
+    async function loadTracks() {
+        const response = await fetch('/api/tracks');
+        const tracks = await response.json();
+
+        const container = document.getElementById('tracks');
+        container.innerHTML = '';
+
+        tracks.forEach(track => {
+            const div = document.createElement('div');
+            div.className = 'track';
+
+            div.innerHTML = `
+                <div class="track-title">${track.title}</div>
+                <div class="duration">Длительность: ${track.durationSec} сек.</div>
+                ${
+                track.audioUrl
+                    ? `<audio controls src="${track.audioUrl}"></audio>`
+                    : `<p>Аудио недоступно</p>`
+            }
+            `;
+
+            container.appendChild(div);
+        });
+    }
+
+    loadTracks();
+</script>
+
 </body>
 </html>
