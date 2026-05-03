@@ -24,6 +24,9 @@ public class Track {
     @Column(nullable = false)
     private Integer durationSec;
 
+    @Column(name = "audio_url", length = 1000)
+    private String audioUrl;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "album_id", nullable = false)
     private Album album;
@@ -48,6 +51,10 @@ public class Track {
         return durationSec;
     }
 
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
     public Album getAlbum() {
         return album;
     }
@@ -58,6 +65,10 @@ public class Track {
 
     public void setDurationSec(Integer durationSec) {
         this.durationSec = durationSec;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
     }
 
     public void setAlbum(Album album) {

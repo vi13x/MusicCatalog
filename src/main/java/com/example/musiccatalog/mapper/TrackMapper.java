@@ -13,6 +13,7 @@ public final class TrackMapper {
                 t.getId(),
                 t.getTitle(),
                 t.getDurationSec(),
+                t.getAudioUrl(),
                 t.getAlbum().getId()
         );
     }

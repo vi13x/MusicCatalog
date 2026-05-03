@@ -11,14 +11,20 @@ import jakarta.validation.constraints.Size;
 public record TrackDTO(
         @Schema(description = "Track identifier", example = "5")
         Long id,
+
         @NotBlank
         @Size(max = 160)
-        @Schema(description = "Track title", example = "Battery")
+        @Schema(description = "Track title", example = "Save Your Tears")
         String title,
+
         @NotNull
         @Min(1)
-        @Schema(description = "Track duration in seconds", example = "312")
+        @Schema(description = "Track duration in seconds", example = "215")
         Integer durationSec,
+
+        @Schema(description = "Audio file URL", example = "https://example.com/audio/save-your-tears.mp3")
+        String audioUrl,
+
         @NotNull
         @Positive
         @Schema(description = "Album identifier owning the track", example = "1")
