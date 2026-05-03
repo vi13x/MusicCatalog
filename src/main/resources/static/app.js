@@ -21,6 +21,7 @@ const state = {
     error: "",
     editing: null,
     detailModal: null,
+    previewTrackId: null,
     localFilters: {},
     pagination: {
         albums: 1,
@@ -49,8 +50,14 @@ const resourceLabels = {
 
 const PAGE_SIZE = 12;
 const INLINE_LIST_PREVIEW_LENGTH = 52;
+const DEMO_TRACK_PREVIEWS = {
+    "blinding lights": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "get lucky": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "bohemian rhapsody": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+};
 
 let toastTimer = null;
+let previewAudio = null;
 const themeToggle = document.getElementById("theme-toggle");
 
 initTheme();
@@ -372,9 +379,9 @@ function renderPagination(resource, pagination, totalItems) {
             <div class="pagination-buttons">
                 <button class="page-button" type="button" data-action="page" data-resource="${resource}" data-page="${pagination.page - 1}" ${pagination.page <= 1 ? "disabled" : ""}>Назад</button>
                 ${getPageButtons(pagination.page, pagination.totalPages).map((page) => page === "gap"
-                    ? `<span class="page-gap">...</span>`
-                    : `<button class="page-button ${page === pagination.page ? "active" : ""}" type="button" data-action="page" data-resource="${resource}" data-page="${page}">${page}</button>`
-                ).join("")}
+        ? `<span class="page-gap">...</span>`
+        : `<button class="page-button ${page === pagination.page ? "active" : ""}" type="button" data-action="page" data-resource="${resource}" data-page="${page}">${page}</button>`
+    ).join("")}
                 <button class="page-button" type="button" data-action="page" data-resource="${resource}" data-page="${pagination.page + 1}" ${pagination.page >= pagination.totalPages ? "disabled" : ""}>Вперед</button>
             </div>
         </div>
@@ -419,17 +426,17 @@ function renderAlbumCard(album) {
             <div class="card-title">${escapeHtml(album.title)}</div>
             <p class="card-subtitle">${escapeHtml(getArtistName(album.artistId))}</p>
             ${renderInlineList("Жанры", asNumberArray(album.genreIds).map(getGenreName), {
-                ownerResource: "albums",
-                ownerId: album.id,
-                listType: "genres",
-                emptyText: "Нет жанров"
-            })}
+        ownerResource: "albums",
+        ownerId: album.id,
+        listType: "genres",
+        emptyText: "Нет жанров"
+    })}
             ${renderInlineList("Треки", tracks.map((track) => track.title), {
-                ownerResource: "albums",
-                ownerId: album.id,
-                listType: "tracks",
-                emptyText: "Треки не добавлены"
-            })}
+        ownerResource: "albums",
+        ownerId: album.id,
+        listType: "tracks",
+        emptyText: "Треки не добавлены"
+    })}
             <div class="card-actions">
                 ${renderActionButtons("albums", album.id)}
             </div>
@@ -441,24 +448,24 @@ function renderArtistGrid(artists) {
     return `
         <div class="grid collection-grid">
             ${artists.map((artist) => {
-                const albums = getAlbumsByArtist(artist.id);
-                return `
+        const albums = getAlbumsByArtist(artist.id);
+        return `
                     <article class="collection-card">
                         <div class="cover" style="--hue: ${hashHue(artist.name)}"><span>${escapeHtml(initials(artist.name))}</span></div>
                         <div class="card-title">${escapeHtml(artist.name)}</div>
                         <p class="card-subtitle">${escapeHtml(albums.length)} альбом(ов)</p>
                         ${renderInlineList("Альбомы", albums.map((album) => album.title), {
-                            ownerResource: "artists",
-                            ownerId: artist.id,
-                            listType: "albums",
-                            emptyText: "Нет альбомов"
-                        })}
+            ownerResource: "artists",
+            ownerId: artist.id,
+            listType: "albums",
+            emptyText: "Нет альбомов"
+        })}
                         <div class="card-actions">
                             ${renderActionButtons("artists", artist.id)}
                         </div>
                     </article>
                 `;
-            }).join("")}
+    }).join("")}
         </div>
     `;
 }
@@ -467,24 +474,24 @@ function renderGenreGrid(genres) {
     return `
         <div class="grid collection-grid">
             ${genres.map((genre) => {
-                const albums = getAlbumsByGenre(genre.id);
-                return `
+        const albums = getAlbumsByGenre(genre.id);
+        return `
                     <article class="collection-card">
                         <div class="cover" style="--hue: ${hashHue(genre.name)}"><span>${escapeHtml(initials(genre.name))}</span></div>
                         <div class="card-title">${escapeHtml(genre.name)}</div>
                         <p class="card-subtitle">${escapeHtml(albums.length)} альбом(ов)</p>
                         ${renderInlineList("Альбомы", albums.map((album) => album.title), {
-                            ownerResource: "genres",
-                            ownerId: genre.id,
-                            listType: "albums",
-                            emptyText: "Нет альбомов"
-                        })}
+            ownerResource: "genres",
+            ownerId: genre.id,
+            listType: "albums",
+            emptyText: "Нет альбомов"
+        })}
                         <div class="card-actions">
                             ${renderActionButtons("genres", genre.id)}
                         </div>
                     </article>
                 `;
-            }).join("")}
+    }).join("")}
         </div>
     `;
 }
@@ -493,24 +500,24 @@ function renderPlaylistGrid(playlists) {
     return `
         <div class="grid collection-grid">
             ${playlists.map((playlist) => {
-                const tracks = getTracksByIds(playlist.trackIds);
-                return `
+        const tracks = getTracksByIds(playlist.trackIds);
+        return `
                     <article class="playlist-card">
                         <div class="cover" style="--hue: ${hashHue(playlist.name)}"><span>${escapeHtml(initials(playlist.name))}</span></div>
                         <div class="card-title">${escapeHtml(playlist.name)}</div>
                         <p class="card-subtitle">${escapeHtml(tracks.length)} трек(ов)</p>
                         ${renderInlineList("Треки", tracks.map((track) => track.title), {
-                            ownerResource: "playlists",
-                            ownerId: playlist.id,
-                            listType: "tracks",
-                            emptyText: "Треки не добавлены"
-                        })}
+            ownerResource: "playlists",
+            ownerId: playlist.id,
+            listType: "tracks",
+            emptyText: "Треки не добавлены"
+        })}
                         <div class="card-actions">
                             ${renderActionButtons("playlists", playlist.id)}
                         </div>
                     </article>
                 `;
-            }).join("")}
+    }).join("")}
         </div>
     `;
 }
@@ -526,11 +533,25 @@ function renderTrackList(tracks, startIndex = 0) {
                         <div class="track-meta">${escapeHtml(getArtistForTrack(track))}</div>
                     </div>
                     <div class="track-album muted">${escapeHtml(getAlbumName(track.albumId))}</div>
+                    <div>${renderTrackPreviewButton(track)}</div>
                     <div class="muted">${escapeHtml(formatDuration(track.durationSec))}</div>
                     <div class="row-actions">${renderActionButtons("tracks", track.id)}</div>
                 </div>
             `).join("")}
         </div>
+    `;
+}
+
+function renderTrackPreviewButton(track) {
+    const previewUrl = getTrackPreviewUrl(track);
+    if (!previewUrl) {
+        return `<span class="muted">—</span>`;
+    }
+    const isPlaying = state.previewTrackId === Number(track.id);
+    return `
+        <button class="preview-button" type="button" data-action="preview-track" data-id="${escapeAttr(track.id)}">
+            ${isPlaying ? "Пауза" : "▶ Прослушать"}
+        </button>
     `;
 }
 
@@ -871,9 +892,47 @@ async function handleClick(event) {
         return;
     }
 
+    if (action === "preview-track") {
+        toggleTrackPreview(Number(id));
+        render();
+        return;
+    }
+
     if (action === "delete") {
         await deleteResource(resource, Number(id));
     }
+}
+
+function toggleTrackPreview(trackId) {
+    const track = getItem("tracks", trackId);
+    const previewUrl = getTrackPreviewUrl(track);
+    if (!previewUrl) {
+        showToast("Для этого трека демо-прослушивание пока недоступно");
+        return;
+    }
+
+    if (state.previewTrackId === trackId && previewAudio) {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+        state.previewTrackId = null;
+        return;
+    }
+
+    if (previewAudio) {
+        previewAudio.pause();
+    }
+
+    previewAudio = new Audio(previewUrl);
+    previewAudio.addEventListener("ended", () => {
+        state.previewTrackId = null;
+        render();
+    });
+    previewAudio.play().catch(() => {
+        state.previewTrackId = null;
+        showToast("Не удалось запустить аудио-превью");
+        render();
+    });
+    state.previewTrackId = trackId;
 }
 
 function closeTopModal() {
@@ -1271,6 +1330,11 @@ function getAlbumTracks(album) {
 function getTracksByIds(trackIds) {
     const ids = new Set(asNumberArray(trackIds));
     return state.data.tracks.filter((track) => ids.has(Number(track.id)));
+}
+
+function getTrackPreviewUrl(track) {
+    const titleKey = normalizeString(track?.title).toLowerCase();
+    return DEMO_TRACK_PREVIEWS[titleKey] || null;
 }
 
 function getArtistName(artistId) {

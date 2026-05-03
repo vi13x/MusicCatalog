@@ -16,5 +16,21 @@ services:
       timeout: 3s
       retries: 20
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: music-catalog-app
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/music_catalog
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   pg17data:

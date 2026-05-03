@@ -45,3 +45,9 @@ app:
     bulk-track-core-pool-size: 16
     bulk-track-max-pool-size: 32
     bulk-track-queue-capacity: 10000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
