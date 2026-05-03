@@ -20,7 +20,7 @@ services:
   - key: DATABASE_URL
     fromDatabase: music-catalog-db # Привязка к базе данных, созданной ниже
 
-- type: pgbes
+- type: postgres
   name: music-catalog-db
   region: oregon # Должен совпадать с регионом приложения
   plan: free
