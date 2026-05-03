@@ -1,31 +1,33 @@
 services:
-- type: pserv
-  name: music-catalog-app
-  env: docker
-  repo: https://github.com/vi13x/MusicCatalog # Замените на ваш репозиторий GitHub
-  region: oregon # Или любой другой доступный регион
-  plan: free
-  dockerfilePath: Dockerfile
-  healthCheckPath: /actuator/health # Предполагается, что у вас есть Spring Boot Actuator
-  ports:
-  - port: 8087
-    protocol: http
-  envVars:
-  - key: DB_USERNAME
-    value: postgres
-  - key: DB_PASSWORD
-    value: 1234
-  - key: SPRING_JPA_HIBERNATE_DDL_AUTO
-    value: validate
-  - key: DATABASE_URL
-    fromDatabase: music-catalog-db # Привязка к базе данных, созданной ниже
+  - type: web
+    name: music-catalog-app
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: 8087
 
-- type: postgres
-  name: music-catalog-db
-  region: oregon # Должен совпадать с регионом приложения
-  plan: free
-  databaseName: music_catalog
-  ipAllowList: [] # Разрешает подключение только от сервисов Render
-  # envVars:
-  # - key: PG_VERSION
-  #   value: 17 # Render пока поддерживает 16, но 17 в разработке. Проверьте актуальную версию Render.
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: music-catalog-db
+          property: user
+
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: music-catalog-db
+          property: password
+
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: validate
+
+databases:
+  - name: music-catalog-db
+    plan: free
+    region: oregon
+    databaseName: music_catalog
