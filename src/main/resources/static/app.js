@@ -51,9 +51,11 @@ const resourceLabels = {
 const PAGE_SIZE = 12;
 const INLINE_LIST_PREVIEW_LENGTH = 52;
 const DEMO_TRACK_PREVIEWS = {
-    "blinding lights": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    "get lucky": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-    "bohemian rhapsody": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+    "save your tears": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "blinding lights": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "hardest to love": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    "too late": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    "alone again": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
 };
 
 let toastTimer = null;
@@ -1333,6 +1335,10 @@ function getTracksByIds(trackIds) {
 }
 
 function getTrackPreviewUrl(track) {
+    if (track?.audioUrl) {
+        return track.audioUrl;
+    }
+
     const titleKey = normalizeString(track?.title).toLowerCase();
     return DEMO_TRACK_PREVIEWS[titleKey] || null;
 }

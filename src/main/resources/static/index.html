@@ -1,87 +1,41 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Music Catalog</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #121212;
-            color: white;
-            padding: 30px;
-        }
 
-        h1 {
-            color: #1db954;
-        }
-
-        .track {
-            background: #1e1e1e;
-            padding: 18px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-        }
-
-        .track-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .duration {
-            color: #aaa;
-            margin-bottom: 10px;
-        }
-
-        audio {
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="/styles.css?v=20260427-ui2">
 </head>
+
 <body>
+<div class="page">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark">M</span>
+            <div>
+                <p class="eyebrow">Коллекция</p>
+                <h1>Music Catalog</h1>
+            </div>
+        </div>
 
-<h1>Music Catalog</h1>
+        <nav id="nav" class="nav"></nav>
 
-<div id="tracks"></div>
+        <div class="sidebar-note">
+            <label class="theme-toggle">
+                <span>Темная</span>
+                <input id="theme-toggle" type="checkbox">
+                <span class="theme-switch"></span>
+                <span>Светлая</span>
+            </label>
+        </div>
+    </aside>
 
-<script>
-    const playableTracks = [
-        "Save Your Tears",
-        "Blinding Lights",
-        "Hardest To Love",
-        "Too Late",
-        "Alone Again"
-    ];
+    <main id="app" class="app-shell"></main>
+</div>
 
-    async function loadTracks() {
-        const response = await fetch('/api/tracks');
-        const tracks = await response.json();
+<div id="toast" class="toast"></div>
 
-        const container = document.getElementById('tracks');
-        container.innerHTML = '';
-
-        tracks.forEach(track => {
-            const div = document.createElement('div');
-            div.className = 'track';
-
-            let audioBlock = `<p>Аудио недоступно</p>`;
-
-            if (playableTracks.includes(track.title) && track.audioUrl) {
-                audioBlock = `<audio controls src="${track.audioUrl}"></audio>`;
-            }
-
-            div.innerHTML = `
-                <div class="track-title">${track.title}</div>
-                <div class="duration">Длительность: ${track.durationSec} сек.</div>
-                ${audioBlock}
-            `;
-
-            container.appendChild(div);
-        });
-    }
-
-    loadTracks();
-</script>
-
+<script type="module" src="/app.js?v=20260427-ui2"></script>
 </body>
 </html>
